@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "TEAMID.com.teosegypt.teospitaxi",
+        "paths": [
+          "/rider/*",
+          "/driver/*",
+          "/trips/*"
+        ]
+      }
+    ]
+  }
+}
