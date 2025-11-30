@@ -1,30 +1,24 @@
-# TeosPitaxi — Pi-Native Mobility dApp (Cleanup Pack)
+# 🚖 TeosPitaxi — Pi-Native Mobility dApp
 
-This patch contains a set of fixes and recommended files to secure and modernize the TeosPitaxi repo.
+TeosPitaxi is a decentralized ride-hailing platform built on the **Pi Network** and powered by the **TEOS ecosystem**. Riders pay in Pi, drivers earn securely, and the platform enforces pricing, rewards, and governance using transparent blockchain rails — no intermediaries, no hidden fees.
 
-## Included
-- .github/workflows/ci.yml
-- .env.example
-- .gitignore
-- package.json.snippet (scripts + engines)
-- app/api/rides/create/action.ts (secure server action example)
-- supabase/sql/rls.sql (RLS policies sample)
-- LICENSE (MIT)
-- CONTRIBUTING.md
-- README_CHANGELOG.md (notes)
+This README includes the latest **Cleanup Pack**, ensuring the repository is secure, CI-enabled, and ready for open collaboration.
 
-## How to apply
-1. **Remove** any file named `.github` in the repository root if it is a **file** (not a folder).
-2. Upload the contents of this ZIP to your repository root (you can upload via GitHub web UI → Add file → Upload files).
-3. Commit changes to `main` (or create a branch + PR).
-4. Verify GitHub Actions runs: Actions → CI.
-5. Add secrets in repo settings for PROD keys (do not commit them):
-   - SUPABASE_SERVICE_ROLE_KEY
-   - NEXT_PUBLIC_SUPABASE_ANON_KEY
-   - PI_API_KEY
-6. Test locally: `pnpm install && pnpm dev`
+---
 
-## Security notes (important)
-- **Never** create a Supabase client with service role key on the client side.
-- Use server actions, edge functions, or API routes for admin operations.
-- Keep `SUPABASE_SERVICE_ROLE_KEY` in GitHub Secrets and only reference within workflows or server-side code.
+## 🧭 Overview
+
+**Goal:** Create a global, censorship-resistant taxi network where drivers and riders interact directly, using Pi as the native payment layer and TEOS wallets for treasury functions.
+
+**Core Concepts:**
+
+- Pi Network wallet login & payments
+- Decentralized ride booking
+- Driver verification and ratings
+- Escrow-based payment safety
+- TEOS Treasury wallet integration
+
+---
+
+## 📦 Included in Cleanup Pack
+
