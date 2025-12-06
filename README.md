@@ -1,4 +1,6 @@
 # 🚖 TeosPitaxi — Pi-Native Mobility dApp
+“Part of the TEOS Egypt Blockchain Ecosystem — a unified civil, financial, and smart-city infrastructure powering digital banking, civic governance, DeFi, Pi integration, and national blockchain services.”
+
 
 TeosPitaxi is a decentralized ride-hailing platform built on the **Pi Network** and powered by the **TEOS ecosystem**. Riders pay in Pi, drivers earn securely, and the platform enforces pricing, rewards, and governance using transparent blockchain rails — no intermediaries, no hidden fees.
 
