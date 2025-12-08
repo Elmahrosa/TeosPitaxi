@@ -44,7 +44,7 @@ TeosPiTaxi is the world's FIRST Pi-native mobility platform built on blockchain 
 7. **Fund Escrow:** Payment held securely in Pi blockchain escrow
 8. **Get Matched:** Driver accepts your ride
 9. **Track Live:** Real-time GPS tracking
-10. **Complete Trip:** Payment automatically split (85% driver, 10% treasury, 5% agent)
+10. **Complete Trip:** Payment automatically split (80% driver, 15% treasury, 5% agent)
 
 ## Egyptian Cities & Addresses Covered
 
@@ -84,8 +84,8 @@ TeosPiTaxi is the world's FIRST Pi-native mobility platform built on blockchain 
 2. **Escrow Funding:** Rider pays full amount to blockchain escrow
 3. **Trip Completion:** Driver completes ride
 4. **Automatic Split:**
-   - 85% → Driver wallet
-   - 10% → TEOS Treasury (platform maintenance)
+   - 80% → Driver wallet
+   - 15% → TEOS Treasury (founder/platform maintenance)
    - 5% → Agent who referred (if applicable)
 5. **Instant Transfer:** Pi transferred immediately on completion
 
@@ -123,7 +123,7 @@ TeosPiTaxi is the world's FIRST Pi-native mobility platform built on blockchain 
 6. Get approved and start earning!
 
 ### Driver Earnings:
-- **85% of fare** goes directly to you
+- **80% of fare** goes directly to you
 - **Instant payment** after trip completion
 - **No commission delays**
 - **Transparent pricing** - see full breakdown
@@ -249,7 +249,7 @@ A: Yes! Tips are optional and 100% go to the driver.
 A: Trip continues. Payment is only processed when ride completes. GPS tracks everything.
 
 **Q: How fast is payment to drivers?**
-A: INSTANT. As soon as trip is marked complete, 85% goes to driver's wallet.
+A: INSTANT. As soon as trip is marked complete, 80% goes to driver's wallet.
 
 **Q: Can I request specific driver?**
 A: Not yet, but feature coming soon in favorite drivers update.

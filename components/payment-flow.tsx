@@ -164,7 +164,7 @@ export function PaymentFlow({
             <div className="text-sm">
               <p className="font-medium text-accent mb-1">Escrow Protection</p>
               <p className="text-muted-foreground">
-                Payment held securely until service completion. Auto-split: 85% Driver, 10% Treasury, 5% Agent
+                Payment held securely until service completion. Auto-split: 80% Driver, 15% Treasury, 5% Agent
               </p>
             </div>
           </div>

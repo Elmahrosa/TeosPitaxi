@@ -31,7 +31,7 @@ export const DEFAULT_FARE_CONFIG: FareConfig = {
   perKmRate: 2, // 2 Pi per km
   perMinuteRate: 0.5, // 0.5 Pi per minute
   minimumFare: 8, // Minimum 8 Pi
-  treasuryFeePercent: 10, // 10% to TEOS Treasury
+  treasuryFeePercent: 15, // 15% to TEOS Treasury (Founder)
   agentCommissionPercent: 5, // 5% to referring agent
   surgeMultiplier: 1.0, // Default no surge
 }
