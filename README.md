@@ -1,7 +1,9 @@
-﻿![TEOS Sovereign Standing](https://img.shields.io/badge/Standing-Sovereign%20Original%20%E2%80%94%20Elmahrosa%20International-blue?style=for-the-badge)
+[![CI](https://github.com/Elmahrosa/TeosPitaxi/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Elmahrosa/TeosPitaxi/actions/workflows/ci.yml)
+
+![TEOS Sovereign Standing](https://img.shields.io/badge/Standing-Sovereign%20Original%20%E2%80%94%20Elmahrosa%20International-blue?style=for-the-badge)
 [![License: TESL](https://img.shields.io/badge/License-TESL%20%2B%20PolyForm%20Noncommercial-green?style=for-the-badge)](https://github.com/Elmahrosa/Teos-Pharaoh-Portal/blob/main/TESL.md)
 
-## 🏛️ Constitutional Authority
+## ??? Constitutional Authority
 
 This repository derives its authority from the
 **International Civic Blockchain Constitution (ICBC)**:
@@ -11,17 +13,17 @@ https://github.com/Elmahrosa/International-Civic-Blockchain-Constitution
 Any implementation or use must comply with ICBC and TESL.
 
 
-# 📍 Repo Standing Statement
+# ?? Repo Standing Statement
 
-This repository is a **sovereign original** under **Elmahrosa International — TEOS Egypt**.  
+This repository is a **sovereign original** under **Elmahrosa International � TEOS Egypt**.  
 Governance is anchored in [TEOS-FORGE](https://github.com/Elmahrosa/TEOS-FORGE).  
 Commercial use requires written approval from Elmahrosa International.  
 
-⚖️ Protected under dual license: PolyForm Noncommercial + TEOS Egypt Sovereign License (TESL).
+?? Protected under dual license: PolyForm Noncommercial + TEOS Egypt Sovereign License (TESL).
 
 md)
 
-> Copyright © 2025 Elmahrosa International. All Rights Reserved.  
+> Copyright � 2025 Elmahrosa International. All Rights Reserved.  
 > This material is NOT open source and is protected by the TEOS Egypt Sovereign License (TESL).  
 > For the full license text, see [TEOS Egypt Sovereign License (TESL)](https://github.com/Elmahrosa/Teos-Pharaoh-Portal/blob/main/TESL.md).
 > 
@@ -112,41 +114,41 @@ You can run these scripts directly from the v0 interface or in your Supabase SQL
 ## Project Structure
 
 \`\`\`
-├── app/
-│   ├── page.tsx                    # Landing page
-│   ├── rider/page.tsx              # Rider app
-│   ├── driver/page.tsx             # Driver app
-│   ├── agent/page.tsx              # Agent app
-│   ├── delivery/page.tsx           # Delivery app
-│   ├── admin/page.tsx              # Admin dashboard
-│   ├── transparency/page.tsx       # Public transparency portal
-│   ├── terms/page.tsx              # Terms of Service
-│   ├── privacy/page.tsx            # Privacy Policy
-│   └── api/
-│       ├── trips/                  # Trip management APIs
-│       ├── payments/               # Payment & escrow APIs
-│       ├── disputes/               # Dispute resolution APIs
-│       ├── transparency/           # Public transparency APIs
-│       └── pricing/                # Dynamic pricing APIs
-├── lib/
-│   ├── supabase.ts                 # Supabase client & types
-│   ├── pi-sdk.ts                   # Pi SDK client-side
-│   ├── pi-sdk-server.ts            # Pi SDK server-side
-│   ├── fare-calculator.ts          # Fare calculation engine
-│   ├── trip-service.ts             # Trip business logic
-│   ├── api-client.ts               # Frontend API client
-│   ├── i18n.ts                     # Internationalization
-│   └── dynamic-pricing.ts        # Dynamic pricing configuration
-├── contexts/
-│   ├── pi-context.tsx              # Pi authentication context
-│   └── locale-context.tsx          # Localization context
-├── scripts/
-│   ├── 001_create_tables.sql      # Database schema
-│   ├── 002_seed_data.sql          # Seed data
-│   ├── 003_pricing_system.sql     # Dynamic pricing and promotional configs
-│   ├── 004_add_founder_config.sql # Founder configuration (aams1969)
-│   └── 005_vehicle_restrictions_and_terms.sql # Vehicle requirements and terms acceptance
-└── components/                     # Reusable UI components
++-- app/
+�   +-- page.tsx                    # Landing page
+�   +-- rider/page.tsx              # Rider app
+�   +-- driver/page.tsx             # Driver app
+�   +-- agent/page.tsx              # Agent app
+�   +-- delivery/page.tsx           # Delivery app
+�   +-- admin/page.tsx              # Admin dashboard
+�   +-- transparency/page.tsx       # Public transparency portal
+�   +-- terms/page.tsx              # Terms of Service
+�   +-- privacy/page.tsx            # Privacy Policy
+�   +-- api/
+�       +-- trips/                  # Trip management APIs
+�       +-- payments/               # Payment & escrow APIs
+�       +-- disputes/               # Dispute resolution APIs
+�       +-- transparency/           # Public transparency APIs
+�       +-- pricing/                # Dynamic pricing APIs
++-- lib/
+�   +-- supabase.ts                 # Supabase client & types
+�   +-- pi-sdk.ts                   # Pi SDK client-side
+�   +-- pi-sdk-server.ts            # Pi SDK server-side
+�   +-- fare-calculator.ts          # Fare calculation engine
+�   +-- trip-service.ts             # Trip business logic
+�   +-- api-client.ts               # Frontend API client
+�   +-- i18n.ts                     # Internationalization
+�   +-- dynamic-pricing.ts        # Dynamic pricing configuration
++-- contexts/
+�   +-- pi-context.tsx              # Pi authentication context
+�   +-- locale-context.tsx          # Localization context
++-- scripts/
+�   +-- 001_create_tables.sql      # Database schema
+�   +-- 002_seed_data.sql          # Seed data
+�   +-- 003_pricing_system.sql     # Dynamic pricing and promotional configs
+�   +-- 004_add_founder_config.sql # Founder configuration (aams1969)
+�   +-- 005_vehicle_restrictions_and_terms.sql # Vehicle requirements and terms acceptance
++-- components/                     # Reusable UI components
 \`\`\`
 
 ## API Endpoints
@@ -185,13 +187,13 @@ You can run these scripts directly from the v0 interface or in your Supabase SQL
 
 ## Payment Flow
 
-1. **Rider requests trip** → System calculates fare with surge multiplier
-2. **Rider funds escrow** → Pi Payment Intent created and approved
-3. **Driver accepts & completes trip** → Trip status updates tracked
+1. **Rider requests trip** ? System calculates fare with surge multiplier
+2. **Rider funds escrow** ? Pi Payment Intent created and approved
+3. **Driver accepts & completes trip** ? Trip status updates tracked
 4. **Automatic distribution:**
-   - 15% → TEOS Treasury (Founder)
-   - 5% → Referring Agent (if applicable)
-   - 80% → Driver Payout
+   - 15% ? TEOS Treasury (Founder)
+   - 5% ? Referring Agent (if applicable)
+   - 80% ? Driver Payout
 
 All payments are logged in `payment_transactions` table with full audit trail.
 
@@ -222,9 +224,9 @@ Once qualified, users are **automatically promoted** to independent agents and c
 ### Commission Distribution
 
 Every completed trip automatically splits payment as follows:
-- **80%** → Driver (transferred directly to their Pi wallet)
-- **15%** → Platform Treasury (TEOS development fund at aams1969 wallet)
-- **5%** → Referring Agent (founder aams1969 or qualified independent agent)
+- **80%** ? Driver (transferred directly to their Pi wallet)
+- **15%** ? Platform Treasury (TEOS development fund at aams1969 wallet)
+- **5%** ? Referring Agent (founder aams1969 or qualified independent agent)
 
 ## Deployment
 
@@ -242,7 +244,7 @@ The app will be available at `your-project.vercel.app`
 **Domain:** TeosPiTaxi.teosegypt.com
 
 1. **DNS Configuration:**
-   - Add CNAME record: `TeosPiTaxi` → `cname.vercel-dns.com`
+   - Add CNAME record: `TeosPiTaxi` ? `cname.vercel-dns.com`
    - Wait for DNS propagation (5-60 minutes)
 
 2. **Vercel Setup:**
@@ -309,12 +311,12 @@ For issues or questions:
 - **Website:** [TeosPiTaxi.teosegypt.com](https://TeosPiTaxi.teosegypt.com)
 - **Founder:** aams1969 (Pi Network)
 
-**Built with ❤️ for the Pi Network community**
+**Built with ?? for the Pi Network community**
 
-*Launching in Alexandria, Egypt 🇪🇬*
+*Launching in Alexandria, Egypt ????*
 *Part of Elmahrosa Projects - Civic-first innovation*
 
-## 🔗 Integration Summary
+## ?? Integration Summary
 This repository is part of the **Elmahrosa Sovereign Stack**.  
 Governance is anchored in **TEOS-FORGE**, with integrations across Bankchain, ERT-LAUNCH, FPBE, and other civic modules.  
 See full details in [docs/integrations.md](https://github.com/Elmahrosa/TEOS-FORGE/blob/main/docs/integrations.md).
