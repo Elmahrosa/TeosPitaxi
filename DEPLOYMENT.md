@@ -28,13 +28,19 @@
 After domain is active:
 \`\`\`bash
 NEXT_PUBLIC_APP_URL=https://TeosPiTaxi.teosegypt.com
+NEXT_PUBLIC_PI_NETWORK=mainnet
 \`\`\`
 
-**Update Pi Developer Portal:**
-Critical: Update your Pi app settings:
-- **App URL:** `https://TeosPiTaxi.teosegypt.com`
-- **Redirect URL:** `https://TeosPiTaxi.teosegypt.com`
-- **Callback URL:** `https://TeosPiTaxi.teosegypt.com`
+**Update Pi Developer Portal - CRITICAL FOR MAINNET:**
+You MUST update your Pi app settings to match exactly:
+- **App URL:** `https://TeosPiTaxi.teosegypt.com` (must be HTTPS)
+- **Redirect URL:** `https://TeosPiTaxi.teosegypt.com` (must match App URL)
+- **Make sure to select Mainnet** (not Testnet) when configuring these URLs
+
+**Network Configuration Important:**
+- For Testnet development: Use `http://localhost:3000` for both App URL and Redirect URL
+- For Mainnet production: Use `https://TeosPiTaxi.teosegypt.com` for both App URL and Redirect URL
+- **Mismatch between network setting and URLs will cause authentication failures!**
 
 Without this update, Pi authentication will fail!
 
@@ -56,11 +62,11 @@ NEXT_PUBLIC_TEOS_TREASURY_ADDRESS=your_new_wallet_address_from_dev_app
 FOUNDER_USERNAME=aams1969
 \`\`\`
 
-**Note:** You mentioned creating a new wallet in the Pi Developer app. Make sure to:
-1. Copy the wallet address (NOT the seed phrase)
+**Note:** The treasury wallet receives 15% platform fee (updated from 10%)
+1. Copy the wallet address (NOT the seed phrase) - use your developer wallet (aams1969)
 2. Add it to both `TEOS_TREASURY_WALLET` and `NEXT_PUBLIC_TEOS_TREASURY_ADDRESS`
 3. Keep the seed phrase secure and NEVER commit it to git
-4. This wallet will receive all 10% platform fees
+4. This wallet will receive all 15% platform fees from transactions
 
 **Google Maps Integration:**
 \`\`\`bash

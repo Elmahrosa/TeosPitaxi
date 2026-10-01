@@ -6,10 +6,24 @@ export async function POST(req: Request) {
     const formData = await req.formData()
     const supabase = createServerClient()
 
+    // Get minimum vehicle year from system config (configurable for soft launch)
+    const { data: configData, error: configError } = await supabase
+      .from("system_config")
+      .select("value")
+      .eq("key", "min_vehicle_year")
+      .single()
+
+    const minVehicleYear = configData?.value
+      ? Number.parseInt(configData.value)
+      : 2020; // Default to 2020 if config not found
+
     // Validate vehicle year
     const vehicleYear = Number.parseInt(formData.get("vehicleYear") as string)
-    if (vehicleYear < 2020) {
-      return NextResponse.json({ error: "Vehicle must be 2020 model or newer", status: 400 }, { status: 400 })
+    if (vehicleYear < minVehicleYear) {
+      return NextResponse.json({
+        error: `Vehicle must be ${minVehicleYear} model or newer`,
+        status: 400
+      }, { status: 400 })
     }
 
     // TODO: Upload files to storage and save to database

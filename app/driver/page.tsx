@@ -1,6 +1,6 @@
-"use client"
-
+"use client";
 import { useState, useEffect } from "react"
+import React from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { PiProvider, usePi } from "@/contexts/pi-context"
@@ -25,6 +25,11 @@ function DriverApp() {
     hours: 0,
     rating: 4.8,
   })
+  const [qualificationStats, setQualificationStats] = useState({
+    completedTrips: 0,
+    personalReferrals: 0,
+    referralTrips: 0,
+  })
   const { isAuthenticated, user, signIn, loading } = usePi()
   const { toast } = useToast()
   const [showDocuments, setShowDocuments] = useState(false)
@@ -37,6 +42,13 @@ function DriverApp() {
     }
   }, [isOnline, isAuthenticated])
 
+  // Fetch qualification stats when user authenticates
+  useEffect(() => {
+    if (isAuthenticated && user?.user.uid) {
+      fetchQualificationStats()
+    }
+  }, [isAuthenticated, user])
+
   const fetchAvailableTrips = async () => {
     try {
       const response = await fetch("/api/trips/available")
@@ -46,6 +58,22 @@ function DriverApp() {
       }
     } catch (error) {
       console.error("[v0] Failed to fetch available trips:", error)
+    }
+  }
+
+  const fetchQualificationStats = async () => {
+    if (!user?.user.uid) return
+
+    try {
+      const response = await fetch(`/api/user/${user.user.uid}/qualification-stats`)
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          setQualificationStats(data.stats)
+        }
+      }
+    } catch (error) {
+      console.error("[v0] Failed to fetch qualification stats:", error)
     }
   }
 
@@ -126,7 +154,7 @@ function DriverApp() {
     toast({
       title: isOnline ? "You're now offline" : "You're now online",
       description: isOnline ? "You won't receive new ride requests" : "Ready to accept rides",
-    })
+    });
   }
 
   return (
@@ -323,8 +351,8 @@ function DriverApp() {
               </div>
               <div className="text-sm text-muted-foreground">${todayStats.usdEarnings.toFixed(2)} USD</div>
             </div>
-            <div className="text-right">
-              <div className="text-3xl font-bold">{todayStats.rides}</div>
+            <div>
+              <div className="text-lg font-bold">{todayStats.rides}</div>
               <div className="text-sm text-muted-foreground">Completed rides</div>
             </div>
           </div>
@@ -334,7 +362,7 @@ function DriverApp() {
               <div className="text-lg font-semibold">{todayStats.hours}h</div>
               <div className="text-sm text-muted-foreground">Online time</div>
             </div>
-            <div className="text-right">
+            <div>
               <div className="text-lg font-semibold flex items-center justify-end gap-1">
                 {todayStats.rating}
                 <span className="text-accent">★</span>
@@ -343,6 +371,105 @@ function DriverApp() {
             </div>
           </div>
         </Card>
+
+        {/* Qualification Progress */}
+        {isAuthenticated && (
+          <Card className="p-4">
+            <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Agent Qualification Progress
+            </h3>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Completed Trips</span>
+                  <span className="font-mono">
+                    {qualificationStats.completedTrips} / 50
+                  </span>
+                </div>
+                <div className="w-full bg-muted/50 h-2 rounded mt-1">
+                  <div
+                    className="bg-accent h-2 rounded"
+                    style={{
+                      width:
+                        Math.min(
+                          (qualificationStats.completedTrips / 50) * 100,
+                          100
+                        ) + "%",
+                    }}
+                  ></div>
+                </div>
+                <div className="text-xs text-muted-foreground text-right">
+                  {Math.min(
+                    Math.round((qualificationStats.completedTrips / 50) * 100),
+                    100
+                  )}%
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Personal Referrals
+                  </span>
+                  <span className="font-mono">
+                    {qualificationStats.personalReferrals} / 10
+                  </span>
+                </div>
+                <div className="w-full bg-muted/50 h-2 rounded mt-1">
+                  <div
+                    className="bg-accent h-2 rounded"
+                    style={{
+                      width:
+                        Math.min(
+                          (qualificationStats.personalReferrals / 10) * 100,
+                          100
+                        ) + "%",
+                    }}
+                  ></div>
+                </div>
+                <div className="text-xs text-muted-foreground text-right">
+                  {Math.min(
+                    Math.round((qualificationStats.personalReferrals / 10) * 100),
+                    100
+                  )}%
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Referral Trips
+                  </span>
+                  <span className="font-mono">
+                    {qualificationStats.referralTrips} / 100
+                  </span>
+                </div>
+                <div className="w-full bg-muted/50 h-2 rounded mt-1">
+                  <div
+                    className="bg-accent h-2 rounded"
+                    style={{
+                      width:
+                        Math.min(
+                          (qualificationStats.referralTrips / 100) * 100,
+                          100
+                        ) + "%",
+                    }}
+                  ></div>
+                </div>
+                <div className="text-xs text-muted-foreground text-right">
+                  {Math.min(
+                    Math.round((qualificationStats.referralTrips / 100) * 100),
+                    100
+                  )}%
+                </div>
+              </div>
+              <div className="mt-4 p-3 bg-accent/5 border-accent/20 rounded-lg">
+                <div className="text-sm font-medium">
+                  Complete all requirements to become an independent agent and earn commissions on your own referrals!
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 gap-3">
@@ -360,7 +487,7 @@ function DriverApp() {
         {isAuthenticated && (
           <Card className="p-4 bg-muted/50">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-accent rounded-full flex items-center justify-center font-bold text-accent-foreground">
+              <div className="h-10 w-10 bg-accent rounded-full font-bold text-accent-foreground">
                 π
               </div>
               <div className="flex-1">

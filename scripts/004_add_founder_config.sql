@@ -23,12 +23,15 @@ CREATE TABLE IF NOT EXISTS system_config (
 
 -- Set TEOS Treasury wallet address
 INSERT INTO system_config (key, value)
-VALUES 
+VALUES
   ('treasury_wallet', 'aams1969'),
   ('founder_username', 'aams1969'),
   ('telegram_channel', 'https://t.me/teospitaxi'),
   -- Updated to real WhatsApp channel link
-  ('whatsapp_channel', 'https://whatsapp.com/channel/0029VbBkdhP4IBhDSAW6Gw2u')
+  ('whatsapp_channel', 'https://whatsapp.com/channel/0029VbBkdhP4IBhDSAW6Gw2u'),
+  -- Soft launch configuration settings
+  ('min_vehicle_year', '2018'),
+  ('patent_agreement_required', 'false')
 ON CONFLICT (key) DO UPDATE
 SET value = EXCLUDED.value, updated_at = NOW();
 
