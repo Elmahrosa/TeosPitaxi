@@ -1,7 +1,26 @@
+/// <reference types="google.maps" />
 "use client"
 
 import { useEffect, useRef, useState } from "react"
 import { Navigation } from "lucide-react"
+
+// The Google Maps JS API attaches itself to `window` at runtime. @types/google.maps
+// declares the global `google` namespace but not the Window property, so declare
+// that narrow boundary here rather than weakening the rest of the file's types.
+declare global {
+  interface Window {
+    google?: {
+      maps: {
+        Map: typeof google.maps.Map
+        Marker: typeof google.maps.Marker
+        SymbolPath: typeof google.maps.SymbolPath
+        DirectionsService: typeof google.maps.DirectionsService
+        DirectionsRenderer: typeof google.maps.DirectionsRenderer
+        TravelMode: typeof google.maps.TravelMode
+      }
+    }
+  }
+}
 
 interface MapViewProps {
   pickup?: { lat: number; lng: number }
@@ -24,17 +43,19 @@ export function MapView({ pickup, dropoff, currentLocation, showRoute, className
       script.onload = () => setMapLoaded(true)
       document.head.appendChild(script)
     } else {
-      setMapLoaded(true)
+      // Defer the state update so mounting does not force a cascading render.
+      queueMicrotask(() => setMapLoaded(true))
     }
   }, [])
 
   useEffect(() => {
-    if (!mapLoaded || !mapRef.current || !window.google) return
+    const googleMaps = window.google
+    if (!mapLoaded || !mapRef.current || !googleMaps) return
 
     // Initialize map centered on pickup or current location
     const center = pickup || currentLocation || { lat: 31.2001, lng: 29.9187 } // Alexandria, Egypt
 
-    const map = new window.google.maps.Map(mapRef.current, {
+    const map = new googleMaps.maps.Map(mapRef.current, {
       center,
       zoom: 14,
       disableDefaultUI: false,
@@ -45,11 +66,11 @@ export function MapView({ pickup, dropoff, currentLocation, showRoute, className
 
     // Add pickup marker
     if (pickup) {
-      new window.google.maps.Marker({
+      new googleMaps.maps.Marker({
         position: pickup,
         map,
         icon: {
-          path: window.google.maps.SymbolPath.CIRCLE,
+          path: googleMaps.maps.SymbolPath.CIRCLE,
           scale: 10,
           fillColor: "#6366f1",
           fillOpacity: 1,
@@ -62,11 +83,11 @@ export function MapView({ pickup, dropoff, currentLocation, showRoute, className
 
     // Add dropoff marker
     if (dropoff) {
-      new window.google.maps.Marker({
+      new googleMaps.maps.Marker({
         position: dropoff,
         map,
         icon: {
-          path: window.google.maps.SymbolPath.CIRCLE,
+          path: googleMaps.maps.SymbolPath.CIRCLE,
           scale: 10,
           fillColor: "#f59e0b",
           fillOpacity: 1,
@@ -79,11 +100,11 @@ export function MapView({ pickup, dropoff, currentLocation, showRoute, className
 
     // Add current location marker
     if (currentLocation) {
-      new window.google.maps.Marker({
+      new googleMaps.maps.Marker({
         position: currentLocation,
         map,
         icon: {
-          path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+          path: googleMaps.maps.SymbolPath.FORWARD_CLOSED_ARROW,
           scale: 6,
           fillColor: "#10b981",
           fillOpacity: 1,
@@ -96,8 +117,8 @@ export function MapView({ pickup, dropoff, currentLocation, showRoute, className
 
     // Draw route if both pickup and dropoff exist
     if (showRoute && pickup && dropoff) {
-      const directionsService = new window.google.maps.DirectionsService()
-      const directionsRenderer = new window.google.maps.DirectionsRenderer({
+      const directionsService = new googleMaps.maps.DirectionsService()
+      const directionsRenderer = new googleMaps.maps.DirectionsRenderer({
         map,
         suppressMarkers: true,
         polylineOptions: {
@@ -110,7 +131,7 @@ export function MapView({ pickup, dropoff, currentLocation, showRoute, className
         {
           origin: pickup,
           destination: dropoff,
-          travelMode: window.google.maps.TravelMode.DRIVING,
+          travelMode: googleMaps.maps.TravelMode.DRIVING,
         },
         (result, status) => {
           if (status === "OK" && result) {

@@ -1,35 +1,58 @@
-import { createBrowserClient } from "@supabase/ssr"
+import "server-only"
+
+import { createBrowserClient, createServerClient as createSupabaseServerClient } from "@supabase/ssr"
+import { createClient as createSupabaseClient } from "@supabase/supabase-js"
 import { cookies } from "next/headers"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-export function createServerClient() {
-  const cookieStore = cookies()
+function assertPublicConfig() {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error("Supabase URL and anon key must be configured")
+  }
+}
 
-  return createBrowserClient(supabaseUrl, supabaseAnonKey, {
+/** Browser-only anon client. Never import from server-only modules. */
+export function createClient() {
+  assertPublicConfig()
+  return createBrowserClient(supabaseUrl, supabaseAnonKey)
+}
+
+/** Cookie-aware SSR anon client. Used only from server components and route handlers. */
+export async function createServerClient() {
+  assertPublicConfig()
+  const cookieStore = await cookies()
+
+  return createSupabaseServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
-      get(name: string) {
-        return cookieStore.get(name)?.value
+      getAll() {
+        return cookieStore.getAll()
+      },
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options))
+        } catch {
+          // Route handlers may set cookies directly; ignore here.
+        }
       },
     },
   })
 }
 
-export function createClient() {
-  return createBrowserClient(supabaseUrl, supabaseAnonKey)
-}
-
-// Legacy export for backward compatibility
-export const supabase = createClient()
-
-// Server-side client with service role for admin operations
+/**
+ * Server-only service-role client. Never import from client components.
+ * Service role is not a member of the controlled writer or verifier roles.
+ */
 export function getServiceSupabase() {
+  assertPublicConfig()
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   if (!serviceRoleKey) {
     throw new Error("SUPABASE_SERVICE_ROLE_KEY is required")
   }
-  return createBrowserClient(supabaseUrl, serviceRoleKey)
+  return createSupabaseClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  })
 }
 
 // Database types

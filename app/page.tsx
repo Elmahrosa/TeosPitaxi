@@ -129,7 +129,7 @@ export default function HomePage() {
                   </p>
                   <div className="flex items-center gap-2 text-sm font-medium text-primary">
                     <span className="text-accent">π</span>
-                    {isRTL ? "تبدأ من 5 باي" : "Starting from 5 Pi"}
+                    {isRTL ? "السعر من عرض الخادم" : "Server-quoted fares"}
                   </div>
                 </Card>
               </Link>
@@ -142,12 +142,12 @@ export default function HomePage() {
                   <h4 className="text-xl font-semibold mb-2">{isRTL ? "توصيل بالدراجة" : "Bike Delivery"}</h4>
                   <p className="text-muted-foreground mb-4">
                     {isRTL
-                      ? "توصيل سريع للطرود بواسطة مندوبين موثوقين. تتبع في الوقت الفعلي."
-                      : "Fast parcel delivery by verified bike couriers. Track in real-time."}
+                      ? "توصيل سريع للطرود بالدراجات عندما تكون الخدمة الموثوقة متاحة."
+                      : "Fast parcel delivery by bike couriers when the trusted service is available."}
                   </p>
                   <div className="flex items-center gap-2 text-sm font-medium text-primary">
                     <span className="text-accent">π</span>
-                    {isRTL ? "تبدأ من 3 باي" : "Starting from 3 Pi"}
+                    {isRTL ? "السعر من عرض الخادم" : "Server-quoted fares"}
                   </div>
                 </Card>
               </Link>
@@ -160,8 +160,8 @@ export default function HomePage() {
                   <h4 className="text-xl font-semibold mb-2">{isRTL ? "الوكلاء العالميون" : "Global Agents"}</h4>
                   <p className="text-muted-foreground mb-4">
                     {isRTL
-                      ? "انضم كوكيل موثوق. اكسب عملة باي من خلال تسجيل سائقين وركاب."
-                      : "Join as a verified agent. Earn Pi by onboarding drivers and riders."}
+                      ? "انضم كوكيل. يتم اشتقاق الأهلية وعمولة 5% من الخادم."
+                      : "Join as an agent. Eligibility and 5% commission are derived server-side."}
                   </p>
                   <div className="flex items-center gap-2 text-sm font-medium text-primary">
                     <span className="text-accent">π</span>
@@ -187,8 +187,8 @@ export default function HomePage() {
                 <h4 className="font-semibold mb-2">{t.payWithPi}</h4>
                 <p className="text-sm text-muted-foreground">
                   {isRTL
-                    ? "مدفوعات 100٪ بعملة باي المشفرة مع حماية الضمان"
-                    : "100% Pi Network cryptocurrency payments with escrow protection"}
+                    ? "مدفوعات باي مع تحقق من الخادم الموثوق"
+                    : "Pi payments verified through a trusted server boundary"}
                 </p>
               </Card>
 
@@ -199,8 +199,8 @@ export default function HomePage() {
                 <h4 className="font-semibold mb-2">{isRTL ? "حوكمة شفافة" : "Transparent Governance"}</h4>
                 <p className="text-sm text-muted-foreground">
                   {isRTL
-                    ? "نهج مدني أولاً مع إشراف المجتمع وسجلات التدقيق"
-                    : "Civic-first approach with community oversight and audit trails"}
+                    ? "نهج مدني أولاً مع سجلات تدقيق الخادم عند الربط"
+                    : "Civic-first approach with server audit records when connected"}
                 </p>
               </Card>
 

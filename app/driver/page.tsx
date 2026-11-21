@@ -1,10 +1,10 @@
 "use client";
-import { useState, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import React from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { PiProvider, usePi } from "@/contexts/pi-context"
-import { Car, MapPin, DollarSign, Clock, User, Menu, Wallet, AlertCircle, Navigation } from "lucide-react"
+import { Car, MapPin, DollarSign, Clock, User, Users, Menu, Wallet, AlertCircle, Navigation } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import { Badge } from "@/components/ui/badge"
@@ -12,19 +12,11 @@ import { Switch } from "@/components/ui/switch"
 import Link from "next/link"
 import { acceptTrip, updateTripStatus, completeTrip } from "@/lib/api-client"
 import { TeosLogo } from "@/components/teos-logo"
-import { DriverDocumentsForm } from "@/components/driver-documents-form"
 
 function DriverApp() {
   const [isOnline, setIsOnline] = useState(false)
   const [activeTrip, setActiveTrip] = useState<any>(null)
   const [availableTrips, setAvailableTrips] = useState<any[]>([])
-  const [todayStats, setTodayStats] = useState({
-    rides: 0,
-    earnings: 0,
-    usdEarnings: 0,
-    hours: 0,
-    rating: 4.8,
-  })
   const [qualificationStats, setQualificationStats] = useState({
     completedTrips: 0,
     personalReferrals: 0,
@@ -32,24 +24,9 @@ function DriverApp() {
   })
   const { isAuthenticated, user, signIn, loading } = usePi()
   const { toast } = useToast()
-  const [showDocuments, setShowDocuments] = useState(false)
+  const [qualificationStatsAvailable, setQualificationStatsAvailable] = useState(false)
 
-  useEffect(() => {
-    if (isOnline && isAuthenticated) {
-      fetchAvailableTrips()
-      const interval = setInterval(fetchAvailableTrips, 5000) // Poll every 5 seconds
-      return () => clearInterval(interval)
-    }
-  }, [isOnline, isAuthenticated])
-
-  // Fetch qualification stats when user authenticates
-  useEffect(() => {
-    if (isAuthenticated && user?.user.uid) {
-      fetchQualificationStats()
-    }
-  }, [isAuthenticated, user])
-
-  const fetchAvailableTrips = async () => {
+  const fetchAvailableTrips = useCallback(async () => {
     try {
       const response = await fetch("/api/trips/available")
       const data = await response.json()
@@ -59,29 +36,48 @@ function DriverApp() {
     } catch (error) {
       console.error("[v0] Failed to fetch available trips:", error)
     }
-  }
+  }, [])
 
-  const fetchQualificationStats = async () => {
-    if (!user?.user.uid) return
-
+  // Identity and ownership are derived by the trusted verifier from the
+  // server-side session; the browser never supplies a Pi UID as authority.
+  const fetchQualificationStats = useCallback(async () => {
     try {
-      const response = await fetch(`/api/user/${user.user.uid}/qualification-stats`)
+      const response = await fetch("/api/user/qualification-stats")
       if (response.ok) {
         const data = await response.json()
         if (data.success) {
           setQualificationStats(data.stats)
+          setQualificationStatsAvailable(true)
+          return
         }
       }
+      setQualificationStatsAvailable(false)
     } catch (error) {
       console.error("[v0] Failed to fetch qualification stats:", error)
+      setQualificationStatsAvailable(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (isOnline && isAuthenticated) {
+      queueMicrotask(() => void fetchAvailableTrips())
+      const interval = setInterval(fetchAvailableTrips, 5000) // Poll every 5 seconds
+      return () => clearInterval(interval)
+    }
+  }, [isOnline, isAuthenticated, fetchAvailableTrips])
+
+  // Fetch qualification stats when user authenticates
+  useEffect(() => {
+    if (isAuthenticated) {
+      queueMicrotask(() => void fetchQualificationStats())
+    }
+  }, [isAuthenticated, fetchQualificationStats])
 
   const handleAcceptTrip = async (tripId: string) => {
-    if (!user?.user.uid) return
+    if (!isAuthenticated) return
 
     try {
-      const result = await acceptTrip(tripId, user.user.uid)
+      const result = await acceptTrip(tripId)
       if (result.success) {
         setActiveTrip(result.trip)
         setAvailableTrips((prev) => prev.filter((t) => t.id !== tripId))
@@ -121,17 +117,14 @@ function DriverApp() {
 
     try {
       const result = await completeTrip(activeTrip.id)
-      if (result.success) {
+      if (result.success && typeof result.driverEarnings === "number") {
         toast({
           title: "Trip Completed",
-          description: `Earned π${result.driverEarnings}`,
+          description: `Recorded driver share π${result.driverEarnings}`,
         })
-        setTodayStats((prev) => ({
-          ...prev,
-          rides: prev.rides + 1,
-          earnings: prev.earnings + Number.parseFloat(result.driverEarnings),
-        }))
         setActiveTrip(null)
+      } else {
+        throw new Error("Server did not return a verified settlement amount")
       }
     } catch (error) {
       toast({
@@ -220,33 +213,19 @@ function DriverApp() {
         </Card>
 
         {/* Verification Status */}
-        {isAuthenticated && !showDocuments && (
+        {isAuthenticated && (
           <Card className="p-4 bg-accent/10 border-accent/20">
-            <div className="flex items-center gap-3">
-              <AlertCircle className="h-5 w-5 text-accent" />
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-accent flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <div className="font-semibold text-sm">Complete Driver Profile</div>
-                <div className="text-xs text-muted-foreground">Upload license and vehicle documents (2020+ only)</div>
+                <div className="font-semibold text-sm">Driver Documents Unavailable</div>
+                <div className="text-xs text-muted-foreground">
+                  Document submission and review are disabled in this release candidate. No upload is accepted and no
+                  approval success state is reachable.
+                </div>
               </div>
-              <Button size="sm" variant="outline" onClick={() => setShowDocuments(true)}>
-                Upload
-              </Button>
             </div>
           </Card>
-        )}
-
-        {/* Document Upload Form */}
-        {showDocuments && (
-          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 overflow-y-auto">
-            <div className="min-h-screen py-8">
-              <div className="max-w-2xl mx-auto px-4">
-                <Button variant="ghost" onClick={() => setShowDocuments(false)} className="mb-4">
-                  ← Back to Dashboard
-                </Button>
-                <DriverDocumentsForm />
-              </div>
-            </div>
-          </div>
         )}
 
         {activeTrip && (
@@ -342,34 +321,11 @@ function DriverApp() {
 
         {/* Today's Stats */}
         <Card className="p-4">
-          <h3 className="font-semibold text-lg mb-4">Today's Earnings</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <div className="text-3xl font-bold flex items-center gap-1">
-                <span className="text-accent">π</span>
-                <span>{todayStats.earnings.toFixed(2)}</span>
-              </div>
-              <div className="text-sm text-muted-foreground">${todayStats.usdEarnings.toFixed(2)} USD</div>
-            </div>
-            <div>
-              <div className="text-lg font-bold">{todayStats.rides}</div>
-              <div className="text-sm text-muted-foreground">Completed rides</div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-border">
-            <div>
-              <div className="text-lg font-semibold">{todayStats.hours}h</div>
-              <div className="text-sm text-muted-foreground">Online time</div>
-            </div>
-            <div>
-              <div className="text-lg font-semibold flex items-center justify-end gap-1">
-                {todayStats.rating}
-                <span className="text-accent">★</span>
-              </div>
-              <div className="text-sm text-muted-foreground">Rating</div>
-            </div>
-          </div>
+          <h3 className="font-semibold text-lg mb-2">Today&apos;s Earnings</h3>
+          <p className="text-sm text-muted-foreground">
+            Earnings, ride totals, online time, and ratings are unavailable until trusted server data is connected and
+            verified. No totals are fabricated in this release candidate.
+          </p>
         </Card>
 
         {/* Qualification Progress */}
@@ -379,10 +335,11 @@ function DriverApp() {
               <Users className="h-5 w-5" />
               Agent Qualification Progress
             </h3>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Completed Trips</span>
+            {qualificationStatsAvailable ? (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Completed Trips</span>
                   <span className="font-mono">
                     {qualificationStats.completedTrips} / 50
                   </span>
@@ -467,7 +424,13 @@ function DriverApp() {
                   Complete all requirements to become an independent agent and earn commissions on your own referrals!
                 </div>
               </div>
-            </div>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Qualification counts are unavailable until trusted server data is connected and verified. No progress is
+                inferred or fabricated in this release candidate.
+              </p>
+            )}
           </Card>
         )}
 
@@ -491,8 +454,10 @@ function DriverApp() {
                 π
               </div>
               <div className="flex-1">
-                <div className="font-semibold text-sm">Instant Pi Payments</div>
-                <div className="text-xs text-muted-foreground">Earnings transferred immediately after each ride</div>
+                <div className="font-semibold text-sm">Pi Settlement Records</div>
+                <div className="text-xs text-muted-foreground">
+                  Verified amounts are recorded in the server ledger. No automatic payout is executed.
+                </div>
               </div>
             </div>
           </Card>

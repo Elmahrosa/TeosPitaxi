@@ -1,79 +1,56 @@
-# TeosPiTaxi - Pi Network Verification Document
+# TeosPiTaxi — Pi Network Verification Evidence Status
 
-## Project Summary for Pi Core Team
+This document tracks **pending evidence** for a Pi Developer review. It is **not** a completed submission and does **not** claim Pi Core Team verification, KYC completion, testnet completion, Mainnet readiness, or launch approval.
 
-**Project Name:** TeosPiTaxi  
-**Website:** https://TeosPiTaxi.teosegypt.com  
-**Founder:** aams1969 (Pi Network)  
-**Location:** Alexandria, Egypt (Initial Soft Launch)  
-**Platform:** Next.js 15, React 19, TypeScript, Supabase, Pi Network SDK v2.0  
+## Project summary
 
-### Civic Utility Value
-TeosPiTaxi provides transparent mobility services with the following civic benefits:
+- Project: TeosPiTaxi
+- Repository branch: `hackathon/pi-mainnet-readiness`
+- Implementation baseline: `b0531815a2db35679ab101f1944c4df6f5f685f1`
+- Intended initial community: Alexandria, Egypt (plan only)
+- Platform: Next.js, TypeScript, Supabase/PostgreSQL, Pi SDK v2.0
 
-1. **Transparent Mobility** - All transactions recorded on Pi blockchain with public audit trails
-2. **Escrow Protection** - Rider funds held in escrow until trip completion, preventing fraud
-3. **Fair Payment Distribution** - Automatic 80%/15%/5% split (Driver/Treasury/Agent) ensures fair compensation
-4. **Community Governance** - Transparent decision-making processes with community oversight
-5. **Local Economic Empowerment** - Enables Alexandrian drivers to earn Pi cryptocurrency directly
-6. **Reduced Financial Friction** - Instant blockchain settlement vs. traditional 3-5 day bank transfers
-7. **Audit Trail Transparency** - Every transaction verifiable on Pi blockchain explorer
+## Approved payment policy
 
-### Payment Flow Explanation
+The approved split is:
 
-**Step-by-Step Transaction Process:**
+- 10% TEOS treasury.
+- 5% to a qualified agent only.
+- 85% driver with a qualified agent; 90% driver without one.
 
-1. **Rider Request** - User requests a ride through the TeosPiTaxi app
-2. **Fare Calculation** - System calculates fare with potential surge pricing (displayed transparently)
-3. **Escrow Funding** - Rider initiates Pi payment to fund escrow (Pioneer-to-App flow)
-4. **Payment Approval** - Backend approves the payment via Pi SDK
-5. **Escrow Holding** - Pi Network holds funds in escrow until trip completion
-6. **Trip Completion** - Driver marks trip as completed in the app
-7. **Payment Distribution** - System automatically distributes funds:
-   - 80% → Driver (Server-to-User transfer via Pi SDK createTransfer)
-   - 15% → TEOS Treasury (retained in founder's developer wallet: aams1969)
-   - 5% → Referring Agent (if applicable, Server-to-User transfer)
-8. **Confirmation** - All parties receive payment confirmation with transaction IDs
+Amounts are derived by the server in integer minor units. Client input cannot set identity, fare, distance, duration, metrics, percentages, quote, or settlement authority. Automated app-to-user transfers remain disabled.
 
-**Technical Implementation:**
-- Uses official Pi Network SDK v2.0 for all cryptocurrency operations
-- Server-side payment verification prevents client-side manipulation
-- Escrow completion requires blockchain transaction verification
-- All payment records stored in Supabase with references to Pi transaction IDs
-- Real-time transparency dashboard displays anonymized transaction data
+## Transaction model to verify
 
-### Current Status
-- **Mainnet Ready:** All Pi SDK integrations completed and tested
-- **Soft Launch Phase:** Preparing for initial launch in Alexandria, Egypt
-- **Testnet Testing:** Completed successfully with all payment flows verified
-- **KYC Verification:** Founder account (aams1969) completed Pi KYC verification
-- **Documentation:** All required documentation completed and available
+1. Browse evidence is server-persisted before `Pi.authenticate`.
+2. The trusted server verifies the Pi user and creates a server session with CSRF bootstrap.
+3. The rider requests a server quote from authenticated session context.
+4. The server derives route metrics and binds them to the trip.
+5. The browser starts the Pi SDK with the server amount only.
+6. The trusted verifier records `/approve` evidence and issues a completion lease.
+7. The trusted verifier calls `/complete` only after provider verification.
+8. The settlement ledger records the approved split; no automatic payout is executed.
 
-### Founder Information
-- **Pi Username:** aams1969
-- **Role:** Founder and Principal Architect
-- **Responsibility:** Platform governance, treasury management, and network liaison
-- **Wallet:** aams1969 (used for TEOS Treasury receipts)
+## Evidence checklist — all pending
 
-### Verification Readiness Checklist
-- [x] App uses official Pi Network SDK v2.0
-- [x] All transactions in Pi cryptocurrency only (no fiat)
-- [x] Transparent fee structure documented and implemented
-- [x] Escrow flow properly implemented with server-side validation
-- [x] No external blockchain integrations
-- [x] Privacy policy and terms of service completed
-- [x] KYC verification completed for founder account
-- [x] Testnet testing completed successfully
-- [x] Clean repository with no committed secrets
-- [x] App URL and Redirect URL configured in Pi Developer Portal
-- [x] Transparent transaction records available via /transparency portal
+- [ ] Migration `011_foundation_corrections_rev2e.sql` reviewed and applied under separate approval.
+- [ ] Postflight/rollback evidence captured.
+- [ ] Dedicated `teospitaxi_payment_verifier`, `teospitaxi_route_metrics`, and `teospitaxi_maintenance` LOGIN identities configured.
+- [ ] `session_user` identity guards verified.
+- [ ] Owner-supplied policy rows, thresholds, scale, evidence references, and webhook secrets supplied.
+- [ ] Tests and build executed with recorded results.
+- [ ] Staging verification completed.
+- [ ] Pi Developer Portal listing confirmed.
+- [ ] PiNet subdomain confirmed.
+- [ ] Verified app domain confirmed.
+- [ ] PiNet URL confirmed.
+- [ ] Pi App ID confirmed.
+- [ ] API key configuration confirmed.
+- [ ] `/v2/me` UID field and PaymentDTO variants confirmed against current Pi documentation.
+- [ ] App metadata and demo video supplied.
+- [ ] KYC requirement, if any, confirmed by the owner.
+- [ ] Separate Mainnet launch approval recorded.
 
-### Submission Notes
-This submission is for the TeosPiTaxi mobility platform, which is part of the Elmahrosa Projects ecosystem focused on civic-first blockchain solutions. The platform is designed to serve the Alexandria, Egypt community initially, with plans for expansion to other Egyptian cities following successful soft launch.
+## Important boundary
 
-We welcome any feedback from the Pi Network team and are prepared to address any additional requirements to ensure full compliance with listing standards.
-
----
-*Document Version: 1.0*  
-*Last Updated: October 1, 2026*  
-*For Pi Network Verification Submission*
+This release candidate fails closed until the trusted verifier boundary and dedicated database identities are configured. Do not present this document as proof of verification or readiness.

@@ -1,0 +1,46 @@
+# Dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Next.js build output
+/.next/
+/out/
+/build/
+
+# TypeScript generated artifacts
+*.tsbuildinfo
+next-env.d.ts
+
+# Environment and local secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Logs and local caches
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.eslintcache
+.cache/
+coverage/
+.vitest/
+*.log
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Local verification evidence (not application source)
+/verification-evidence/

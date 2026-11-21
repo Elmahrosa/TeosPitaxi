@@ -17,12 +17,18 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   const [t, setT] = useState<Translations>(getTranslations(defaultLocale))
 
   useEffect(() => {
-    // Load saved locale from localStorage
-    const savedLocale = localStorage.getItem("locale") as Locale
-    if (savedLocale) {
+    // Load saved locale from localStorage without setting state synchronously
+    // inside the effect body.
+    const stored = localStorage.getItem("locale")
+    const savedLocale: Locale | null = stored === "ar" || stored === "en" ? stored : null
+    if (!savedLocale) return
+
+    queueMicrotask(() => {
       setLocaleState(savedLocale)
       setT(getTranslations(savedLocale))
-    }
+      document.documentElement.dir = savedLocale === "ar" ? "rtl" : "ltr"
+      document.documentElement.lang = savedLocale
+    })
   }, [])
 
   const setLocale = (newLocale: Locale) => {

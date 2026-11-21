@@ -16,8 +16,7 @@ cat > teospitaxi/package.json << 'EOF'
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start"
   },
   "dependencies": {
     "react": "^19.0.0",

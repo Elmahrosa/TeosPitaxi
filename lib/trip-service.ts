@@ -124,36 +124,34 @@ export async function rateTrip(tripId: string, userId: string, rating: number, f
   if (!trip) throw new Error("Trip not found")
 
   const isRider = trip.rider_id === userId
-  const updates: any = {}
-
-  if (isRider) {
-    updates.driver_rating = rating
-    updates.driver_feedback = feedback
-  } else {
-    updates.rider_rating = rating
-    updates.rider_feedback = feedback
-  }
+  const updates = isRider
+    ? { driver_rating: rating, driver_feedback: feedback ?? null }
+    : { rider_rating: rating, rider_feedback: feedback ?? null }
 
   await db.from("trips").update(updates).eq("id", tripId)
 
-  // Update user's average rating
+  // Update user's average rating. Both columns are selected with a fixed shape
+  // so the callback operates on one concrete row type rather than a union.
   const targetUserId = isRider ? trip.driver_id : trip.rider_id
   if (targetUserId) {
-    const { data: trips } = await db
+    const { data: ratedTrips } = await db
       .from("trips")
-      .select(isRider ? "driver_rating" : "rider_rating")
+      .select("driver_rating, rider_rating")
       .eq(isRider ? "driver_id" : "rider_id", targetUserId)
-      .not(isRider ? "driver_rating" : "rider_rating", "is", null)
 
-    if (trips && trips.length > 0) {
-      const ratings = trips.map((t) => (isRider ? t.driver_rating : t.rider_rating)).filter(Boolean)
+    if (ratedTrips && ratedTrips.length > 0) {
+      const ratings = ratedTrips
+        .map((ratedTrip) => (isRider ? ratedTrip.driver_rating : ratedTrip.rider_rating))
+        .filter((value): value is number => typeof value === "number" && Number.isFinite(value))
 
-      const avgRating = ratings.reduce((a, b) => a + b, 0) / ratings.length
+      if (ratings.length > 0) {
+        const avgRating = ratings.reduce((total, value) => total + value, 0) / ratings.length
 
-      await db
-        .from("users")
-        .update({ rating: Math.round(avgRating * 100) / 100 })
-        .eq("id", targetUserId)
+        await db
+          .from("users")
+          .update({ rating: Math.round(avgRating * 100) / 100 })
+          .eq("id", targetUserId)
+      }
     }
   }
 }

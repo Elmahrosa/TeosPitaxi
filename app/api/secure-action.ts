@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { type NextRequest } from "next/server"
+import { fail, requireMutationContext } from "@/lib/server-security"
 
-export async function POST(req) {
-  const body = await req.json()
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
-  )
-  return NextResponse.json({ ok: true })
+export async function POST(request: NextRequest) {
+  try {
+    await requireMutationContext(request)
+    return fail(501, "ACTION_NOT_IMPLEMENTED", "No privileged action is exposed through this endpoint")
+  } catch (error) {
+    return fail(400, "INVALID_REQUEST", error instanceof Error ? error.message : undefined)
+  }
 }

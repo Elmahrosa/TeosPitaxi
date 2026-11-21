@@ -20,23 +20,24 @@ export default function TermsPage() {
           <section>
             <h2 className="text-2xl font-semibold mt-8 mb-4">1. Introduction</h2>
             <p>
-              Welcome to TeosPiTaxi. By accessing or using our Pi-powered mobility platform, you agree to be bound by
-              these Terms of Service. TeosPiTaxi is the first blockchain-based ride-sharing service on the Pi Network,
-              offering transparent, civic-first transportation services.
+              Welcome to TeosPiTaxi. By accessing or using this Pi-powered mobility release candidate, you agree to be
+              bound by these Terms of Service. The application is not launch-approved and is not represented as the
+              first or only Pi Network ride-sharing service.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold mt-8 mb-4">2. Elmahrosa Projects Partnership</h2>
             <p>
-              TeosPiTaxi is an official partner of Elmahrosa Projects. All users and drivers join the Elmahrosa
-              community and contribute to civic-first governance and transparent mobility services in Egypt and beyond.
+              Repository materials associate TeosPiTaxi with Elmahrosa Projects and civic-first mobility principles.
+              Formal partnership, governance, and constitution evidence remain owner-supplied and are not represented as
+              verified in this release candidate.
             </p>
             <p className="mt-4">By using TeosPiTaxi, you agree to:</p>
             <ul className="list-disc pl-6 mt-2 space-y-2">
-              <li>Participate in the Elmahrosa community with integrity</li>
-              <li>Support transparent, blockchain-verified transactions</li>
-              <li>Contribute to civic-first governance principles</li>
+              <li>Participate with integrity in any community program that is actually offered</li>
+              <li>Support server-verified transaction records</li>
+              <li>Respect civic-first governance principles when approved</li>
               <li>Uphold Egyptian heritage and cultural values</li>
             </ul>
           </section>
@@ -53,29 +54,26 @@ export default function TermsPage() {
             <h2 className="text-2xl font-semibold mt-8 mb-4">4. Driver Requirements</h2>
             <p>All drivers must meet the following requirements:</p>
             <ul className="list-disc pl-6 mt-2 space-y-2">
-              <li>Valid driver's license for the service area</li>
-              <li>Vehicle manufactured 2020 or later</li>
-              <li>Vehicle must be registered as small car, large car, or bike</li>
-              <li>Proof of vehicle insurance</li>
-              <li>Background check clearance</li>
-              <li>Signed patent agreement for TeosPiTaxi platform</li>
-              <li>Complete profile verification</li>
+              <li>Requirements and evidence standards are pending owner approval</li>
+              <li>Driver document submission is unavailable in this release candidate</li>
+              <li>No document-approval success state is reachable</li>
+              <li>Any governance or patent agreement terms remain owner-supplied</li>
             </ul>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold mt-8 mb-4">5. Payment Terms</h2>
             <p>
-              All payments are processed through the Pi Network blockchain. TeosPiTaxi uses an escrow system to ensure
-              secure transactions:
+              Pi payments are initiated through the Pi SDK and verified through a trusted server boundary. Payment and
+              mutation routes fail closed until that boundary is configured:
             </p>
             <ul className="list-disc pl-6 mt-2 space-y-2">
-              <li>Riders pay in Pi cryptocurrency at booking</li>
-              <li>Funds are held in blockchain escrow until trip completion</li>
-              <li>Founder fee (15%) goes to TEOS Treasury for civic projects</li>
-              <li>Agent commission (5%) for referrals when applicable</li>
-              <li>Driver earnings (80%) released after successful trip completion</li>
-              <li>Disputes handled through transparent blockchain records</li>
+              <li>The browser amount only starts the Pi SDK; it never authorizes settlement</li>
+              <li>The server verifies provider evidence before approval and completion</li>
+              <li>Treasury receives 10%</li>
+              <li>A qualified agent receives 5% only under the approved policy</li>
+              <li>The driver receives 85% with a qualified agent, or 90% without one</li>
+              <li>Settlement is recorded in a server ledger; automated payouts remain disabled</li>
             </ul>
           </section>
 
@@ -90,9 +88,9 @@ export default function TermsPage() {
           <section>
             <h2 className="text-2xl font-semibold mt-8 mb-4">7. Dispute Resolution</h2>
             <p>
-              All disputes are handled through our transparent governance system. Blockchain transaction records provide
-              immutable evidence. Admin team reviews disputes within 24 hours. Appeals can be escalated to community
-              governance.
+              Dispute intake is unavailable in this release candidate. When trusted server data is connected, review
+              evidence will be limited to server audit records and provider verification records. Review timelines and
+              appeal routes are pending owner-defined policy and are not represented as already operating.
             </p>
           </section>
 
@@ -111,9 +109,9 @@ export default function TermsPage() {
           <section>
             <h2 className="text-2xl font-semibold mt-8 mb-4">9. Platform Fees</h2>
             <p>
-              The 15% founder fee supports TEOS Treasury initiatives including civic infrastructure, community
-              development, and platform maintenance. All fee allocations are transparent and auditable on the
-              blockchain.
+              The approved split is 10% treasury, 5% only to a qualified agent, and 85% driver with a qualified agent or
+              90% driver without one. Amounts are derived in integer minor units by the server and recorded in a server
+              ledger. No blockchain auditability or automatic payout claim is made.
             </p>
           </section>
 
@@ -166,9 +164,6 @@ export default function TermsPage() {
               <li>
                 <strong>Website:</strong> TeosPiTaxi.teosegypt.com
               </li>
-              <li>
-                <strong>Founder:</strong> aams1969 (Pi Network)
-              </li>
             </ul>
           </section>
 
@@ -176,8 +171,8 @@ export default function TermsPage() {
             <h2 className="text-2xl font-semibold mb-4">Acceptance</h2>
             <p>
               By creating a TeosPiTaxi account, you acknowledge that you have read, understood, and agree to be bound by
-              these Terms of Service and our Privacy Policy. You also agree to join the Elmahrosa Projects community and
-              sign the required patent agreement.
+              these Terms of Service and our Privacy Policy. Any community, governance, or patent-agreement requirement
+              remains pending owner-supplied configuration and is not enforced by this release candidate.
             </p>
           </section>
         </div>

@@ -1,28 +1,11 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { createTrip } from "@/lib/trip-service"
-import { CreateTripSchema } from "@/lib/validation"
+import { type NextRequest } from "next/server"
+import { fail, requireMutationContext } from "@/lib/server-security"
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await req.json()
-
-    const validation = CreateTripSchema.safeParse(body)
-
-    if (!validation.success) {
-      return NextResponse.json(
-        {
-          error: "Invalid request data",
-          details: validation.error.errors,
-        },
-        { status: 400 },
-      )
-    }
-
-    const trip = await createTrip(validation.data)
-
-    return NextResponse.json({ success: true, trip })
-  } catch (error: any) {
-    console.error("[TeosPiTaxi] Create trip error:", error)
-    return NextResponse.json({ success: false, error: error.message || "Failed to create trip" }, { status: 500 })
+    await requireMutationContext(request)
+    return fail(501, "TRIP_CREATE_SERVER_DERIVED_REQUIRED", "Trip creation must use server-derived rider identity, route metrics, and quote")
+  } catch (error) {
+    return fail(400, "INVALID_REQUEST", error instanceof Error ? error.message : undefined)
   }
 }

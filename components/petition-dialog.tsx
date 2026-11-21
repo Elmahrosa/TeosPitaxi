@@ -15,7 +15,7 @@ import { ExternalLink, FileText } from "lucide-react"
 
 interface PetitionDialogProps {
   open: boolean
-  onComplete: () => void
+  onComplete: () => void | Promise<void>
 }
 
 export function PetitionDialog({ open, onComplete }: PetitionDialogProps) {
@@ -35,18 +35,9 @@ export function PetitionDialog({ open, onComplete }: PetitionDialogProps) {
 
     setIsProcessing(true)
     try {
-      // Record petition signature in backend
-      await fetch("/api/onboarding/sign-petition", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          petitionUrl,
-          signedAt: new Date().toISOString(),
-        }),
-      })
-      onComplete()
+      await onComplete()
     } catch (error) {
-      console.error("[v0] Failed to record petition signature:", error)
+      console.error("[rev2e] Sign-in flow failed:", error)
     } finally {
       setIsProcessing(false)
     }
@@ -61,7 +52,7 @@ export function PetitionDialog({ open, onComplete }: PetitionDialogProps) {
             Join the Elmahrosa Movement
           </DialogTitle>
           <DialogDescription>
-            Support digital currency regulation in Egypt before connecting your Pi wallet
+            Optional: support clear digital-currency regulation before connecting your Pi account
           </DialogDescription>
         </DialogHeader>
 
@@ -69,9 +60,8 @@ export function PetitionDialog({ open, onComplete }: PetitionDialogProps) {
           <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
             <h4 className="font-semibold mb-2 text-sm">Why Sign This Petition?</h4>
             <p className="text-sm text-muted-foreground">
-              TeosPiTaxi is part of the Elmahrosa Projects initiative to bring blockchain innovation to Egypt. Your
-              signature helps advocate for clear regulations that protect users and enable growth of digital currencies
-              like Pi Network.
+              This external petition is part of the Elmahrosa Projects initiative. It is separate from Pi Core Team
+              verification and from this release candidate&apos;s approval status.
             </p>
           </div>
 
@@ -118,7 +108,7 @@ export function PetitionDialog({ open, onComplete }: PetitionDialogProps) {
             disabled={!hasReadTerms || !hasSignedPetition || isProcessing}
             onClick={handleContinue}
           >
-            {isProcessing ? "Processing..." : "Continue to Connect Wallet"}
+            {isProcessing ? "Processing..." : "Continue to Pi sign-in"}
           </Button>
         </DialogFooter>
       </DialogContent>

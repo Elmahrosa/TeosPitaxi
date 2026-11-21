@@ -1,5 +1,23 @@
 // Frontend API client for TEOSPITAXI backend
 
+async function postMutation(url: string, body: Record<string, unknown>): Promise<Response> {
+  const csrfToken =
+    typeof window === "undefined" ? "" : window.sessionStorage.getItem("rev2e_csrf_token") ?? ""
+  const csrfEpoch =
+    typeof window === "undefined" ? "" : window.sessionStorage.getItem("rev2e_csrf_epoch") ?? ""
+
+  return fetch(url, {
+    method: "POST",
+    credentials: "same-origin",
+    headers: {
+      "Content-Type": "application/json",
+      "x-rev2e-csrf": csrfToken,
+      "x-rev2e-csrf-epoch": csrfEpoch,
+    },
+    body: JSON.stringify(body),
+  })
+}
+
 export interface CreateTripRequest {
   riderId: string
   pickupLocation: { lat: number; lng: number }
@@ -35,55 +53,36 @@ export async function calculateFare(distanceKm: number, durationMinutes: number,
 }
 
 export async function createTrip(request: CreateTripRequest): Promise<{ trip: Trip }> {
-  const response = await fetch("/api/trips/create", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(request),
-  })
+  const response = await postMutation("/api/trips/create", request as unknown as Record<string, unknown>)
 
   if (!response.ok) throw new Error("Failed to create trip")
   return response.json()
 }
 
-export async function acceptTrip(tripId: string, driverId: string) {
-  const response = await fetch("/api/trips/accept", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ tripId, driverId }),
-  })
+export async function acceptTrip(tripId: string) {
+  // The driver identity is derived from the verified server session.
+  const response = await postMutation("/api/trips/accept", { tripId })
 
   if (!response.ok) throw new Error("Failed to accept trip")
   return response.json()
 }
 
 export async function updateTripStatus(tripId: string, status: string) {
-  const response = await fetch("/api/trips/update-status", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ tripId, status }),
-  })
+  const response = await postMutation("/api/trips/update-status", { tripId, status })
 
   if (!response.ok) throw new Error("Failed to update trip status")
   return response.json()
 }
 
 export async function createEscrow(tripId: string, paymentIntentId: string, piPaymentId: string) {
-  const response = await fetch("/api/payments/escrow", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ tripId, paymentIntentId, piPaymentId }),
-  })
+  const response = await postMutation("/api/payments/escrow", { tripId, paymentIntentId, piPaymentId })
 
   if (!response.ok) throw new Error("Failed to create escrow")
   return response.json()
 }
 
 export async function completeTrip(tripId: string) {
-  const response = await fetch("/api/payments/complete-trip", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ tripId }),
-  })
+  const response = await postMutation("/api/payments/complete-trip", { tripId })
 
   if (!response.ok) throw new Error("Failed to complete trip")
   return response.json()
@@ -96,10 +95,12 @@ export async function createDispute(
   description: string,
   evidence?: any,
 ) {
-  const response = await fetch("/api/disputes/create", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ tripId, filedById, reason, description, evidence }),
+  const response = await postMutation("/api/disputes/create", {
+    tripId,
+    filedById,
+    reason,
+    description,
+    evidence,
   })
 
   if (!response.ok) throw new Error("Failed to create dispute")

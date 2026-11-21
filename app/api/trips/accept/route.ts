@@ -1,19 +1,11 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { assignDriver } from "@/lib/trip-service"
+import { type NextRequest } from "next/server"
+import { fail, requireMutationContext } from "@/lib/server-security"
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const { tripId, driverId } = await req.json()
-
-    if (!tripId || !driverId) {
-      return NextResponse.json({ error: "Missing tripId or driverId" }, { status: 400 })
-    }
-
-    const trip = await assignDriver(tripId, driverId)
-
-    return NextResponse.json({ trip })
-  } catch (error: any) {
-    console.error("[v0] Accept trip error:", error)
-    return NextResponse.json({ error: error.message || "Failed to accept trip" }, { status: 500 })
+    await requireMutationContext(request)
+    return fail(501, "TRIP_ACCEPT_SERVER_IDENTITY_REQUIRED", "Driver identity must be derived from the verified session")
+  } catch (error) {
+    return fail(400, "INVALID_REQUEST", error instanceof Error ? error.message : undefined)
   }
 }

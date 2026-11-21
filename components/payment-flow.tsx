@@ -8,120 +8,107 @@ import { useToast } from "@/hooks/use-toast"
 import { Loader2, CheckCircle, XCircle, Shield } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
+export interface ServerPaymentQuote {
+  paymentIntentId: string
+  amountMinor: number
+  minorUnitScale: number
+  amountDisplay: number
+  expiresAt: string
+}
+
 interface PaymentFlowProps {
   tripId: string
-  amount: number
+  quote: ServerPaymentQuote
   serviceType: "ride" | "delivery"
   description: string
-  metadata: Record<string, any>
-  onSuccess?: (paymentId: string, txid: string) => void
+  onVerified?: (paymentId: string, txid: string) => void
   onCancel?: () => void
 }
 
 export function PaymentFlow({
   tripId,
-  amount,
+  quote,
   serviceType,
   description,
-  metadata,
-  onSuccess,
+  onVerified,
   onCancel,
 }: PaymentFlowProps) {
-  const [status, setStatus] = useState<"idle" | "processing" | "approving" | "completing" | "success" | "error">("idle")
+  const [status, setStatus] = useState<
+    "idle" | "processing" | "approving" | "verifying" | "verified" | "error"
+  >("idle")
   const [paymentId, setPaymentId] = useState<string>("")
   const [error, setError] = useState<string>("")
   const { toast } = useToast()
+
+  const postWithCredentials = async (url: string, body: Record<string, unknown>) => {
+    const csrfToken = window.sessionStorage.getItem("rev2e_csrf_token") ?? ""
+    const csrfEpoch = window.sessionStorage.getItem("rev2e_csrf_epoch") ?? ""
+
+    const response = await fetch(url, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+        "x-rev2e-csrf": csrfToken,
+        "x-rev2e-csrf-epoch": csrfEpoch,
+      },
+      body: JSON.stringify(body),
+    })
+
+    if (!response.ok) {
+      throw new Error(`Server verification unavailable (${response.status})`)
+    }
+
+    return response.json()
+  }
 
   const initiatePayment = async () => {
     setStatus("processing")
     setError("")
 
     try {
-      console.log("[v0] Initiating Pi payment:", { tripId, amount, serviceType, description })
+      if (new Date(quote.expiresAt).getTime() <= Date.now()) {
+        throw new Error("Quote has expired; request a new quote")
+      }
 
       await createPiPayment(
-        amount,
+        quote.amountDisplay,
         description,
         {
-          ...metadata,
+          paymentIntentId: quote.paymentIntentId,
           tripId,
           serviceType,
-          timestamp: new Date().toISOString(),
         },
-        // Approval callback
-        async (paymentId) => {
-          console.log("[v0] Payment approval needed:", paymentId)
-          setPaymentId(paymentId)
+        async (piPaymentId) => {
+          setPaymentId(piPaymentId)
           setStatus("approving")
-
-          // Call backend to approve and create escrow
-          const response = await fetch("/api/payments/escrow", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              tripId,
-              paymentIntentId: paymentId,
-              piPaymentId: paymentId,
-            }),
-          })
-
-          if (!response.ok) {
-            throw new Error("Failed to approve payment")
-          }
-
-          toast({
-            title: "Payment Approved",
-            description: "Funds secured in escrow",
+          await postWithCredentials("/api/payments/escrow", {
+            tripId,
+            paymentIntentId: quote.paymentIntentId,
+            providerPaymentId: piPaymentId,
           })
         },
-        // Completion callback
-        async (paymentId, txid) => {
-          console.log("[v0] Payment completion needed:", paymentId, txid)
-          setStatus("completing")
-
-          // Call backend to complete payment and distribute funds
-          const response = await fetch("/api/payments/complete", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              paymentId,
-              txid,
-              tripId,
-            }),
+        async (piPaymentId, txid) => {
+          setStatus("verifying")
+          await postWithCredentials("/api/payments/complete", {
+            tripId,
+            paymentIntentId: quote.paymentIntentId,
+            providerPaymentId: piPaymentId,
+            txid,
           })
-
-          if (!response.ok) {
-            throw new Error("Failed to complete payment")
-          }
-
-          const data = await response.json()
-          console.log("[v0] Payment completed, distribution:", data.distribution)
-
-          setStatus("success")
-          toast({
-            title: "Payment Successful",
-            description: "Funds distributed: Driver, Agent, and Treasury",
-          })
-
-          onSuccess?.(paymentId, txid)
+          setStatus("verified")
+          onVerified?.(piPaymentId, txid)
         },
       )
-    } catch (err: any) {
-      console.error("[v0] Payment error:", err)
-      setError(err.message || "Payment failed")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Payment failed")
       setStatus("error")
       toast({
-        title: "Payment Failed",
-        description: err.message || "Please try again",
+        title: "Payment not verified",
+        description: err instanceof Error ? err.message : "Please try again",
         variant: "destructive",
       })
     }
-  }
-
-  const handleCancel = () => {
-    setStatus("idle")
-    setError("")
-    onCancel?.()
   }
 
   return (
@@ -129,11 +116,11 @@ export function PaymentFlow({
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-lg">Payment Details</h3>
         {status !== "idle" && (
-          <Badge variant={status === "success" ? "default" : status === "error" ? "destructive" : "outline"}>
+          <Badge variant={status === "verified" ? "default" : status === "error" ? "destructive" : "outline"}>
             {status === "processing" && "Processing"}
             {status === "approving" && "Approving"}
-            {status === "completing" && "Completing"}
-            {status === "success" && "Success"}
+            {status === "verifying" && "Verifying"}
+            {status === "verified" && "Verified"}
             {status === "error" && "Failed"}
           </Badge>
         )}
@@ -141,19 +128,15 @@ export function PaymentFlow({
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Amount</span>
+          <span className="text-sm text-muted-foreground">Server-quoted amount</span>
           <span className="font-bold flex items-center gap-1">
             <span className="text-accent">π</span>
-            <span>{amount}</span>
+            <span>{quote.amountDisplay}</span>
           </span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Service</span>
-          <span className="font-medium capitalize">{serviceType}</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Description</span>
-          <span className="text-sm text-right max-w-[200px] truncate">{description}</span>
+          <span className="text-sm text-muted-foreground">Payment intent</span>
+          <span className="font-mono text-xs">{quote.paymentIntentId}</span>
         </div>
       </div>
 
@@ -162,9 +145,10 @@ export function PaymentFlow({
           <div className="flex items-start gap-2 p-3 bg-accent/10 rounded-lg border border-accent/20">
             <Shield className="h-5 w-5 text-accent flex-shrink-0 mt-0.5" />
             <div className="text-sm">
-              <p className="font-medium text-accent mb-1">Escrow Protection</p>
+              <p className="font-medium text-accent mb-1">Server-verified settlement</p>
               <p className="text-muted-foreground">
-                Payment held securely until service completion. Auto-split: 80% Driver, 15% Treasury, 5% Agent
+                The exact quoted amount is verified by the server before approval and completion. Approved split:
+                85% or 90% driver, 10% treasury, 0% or 5% qualified agent. No automatic payout is executed.
               </p>
             </div>
           </div>
@@ -174,60 +158,37 @@ export function PaymentFlow({
         </div>
       )}
 
-      {status === "processing" && (
+      {(status === "processing" || status === "approving" || status === "verifying") && (
         <div className="flex flex-col items-center justify-center py-6 space-y-3">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Opening Pi payment...</p>
+          <p className="text-sm text-muted-foreground">
+            {status === "processing" && "Opening Pi payment..."}
+            {status === "approving" && "Requesting server verification..."}
+            {status === "verifying" && "Waiting for server settlement record..."}
+          </p>
         </div>
       )}
 
-      {status === "approving" && (
+      {status === "verified" && (
         <div className="flex flex-col items-center justify-center py-6 space-y-3">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Securing payment in escrow...</p>
-        </div>
-      )}
-
-      {status === "completing" && (
-        <div className="flex flex-col items-center justify-center py-6 space-y-3">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Distributing funds...</p>
-        </div>
-      )}
-
-      {status === "success" && (
-        <div className="flex flex-col items-center justify-center py-6 space-y-3">
-          <div className="h-16 w-16 bg-chart-5/10 rounded-full flex items-center justify-center">
-            <CheckCircle className="h-8 w-8 text-chart-5" />
-          </div>
-          <div className="text-center">
-            <p className="font-semibold">Payment Successful</p>
-            <p className="text-sm text-muted-foreground">Funds distributed automatically</p>
-            {paymentId && (
-              <p className="text-xs text-muted-foreground mt-2 font-mono">ID: {paymentId.slice(0, 16)}...</p>
-            )}
-          </div>
+          <CheckCircle className="h-8 w-8 text-chart-5" />
+          <p className="font-semibold">Payment verified and settlement recorded</p>
+          {paymentId && <p className="text-xs font-mono">ID: {paymentId.slice(0, 16)}...</p>}
         </div>
       )}
 
       {status === "error" && (
         <div className="space-y-3">
           <div className="flex flex-col items-center justify-center py-6 space-y-3">
-            <div className="h-16 w-16 bg-destructive/10 rounded-full flex items-center justify-center">
-              <XCircle className="h-8 w-8 text-destructive" />
-            </div>
-            <div className="text-center">
-              <p className="font-semibold">Payment Failed</p>
-              <p className="text-sm text-muted-foreground">{error || "Please try again"}</p>
-            </div>
+            <XCircle className="h-8 w-8 text-destructive" />
+            <p className="font-semibold">Payment not completed</p>
+            <p className="text-sm text-muted-foreground">{error}</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleCancel} className="flex-1 bg-transparent">
+            <Button variant="outline" onClick={() => { setStatus("idle"); onCancel?.() }} className="flex-1">
               Cancel
             </Button>
-            <Button onClick={initiatePayment} className="flex-1">
-              Retry
-            </Button>
+            <Button onClick={initiatePayment} className="flex-1">Retry</Button>
           </div>
         </div>
       )}

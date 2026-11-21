@@ -5,11 +5,10 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { PiProvider, usePi } from "@/contexts/pi-context"
 import { MapPin, Navigation, Clock, Star, Wallet, Menu, User, History } from "lucide-react"
-import { createPiPayment } from "@/lib/pi-sdk"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import Link from "next/link"
-import { calculateFare, createTrip, createEscrow } from "@/lib/api-client"
+import { PaymentFlow, type ServerPaymentQuote } from "@/components/payment-flow"
 import { TeosLogo } from "@/components/teos-logo"
 import { LocationAutocomplete } from "@/components/location-autocomplete"
 
@@ -22,6 +21,7 @@ function RiderApp() {
   const [selectedRide, setSelectedRide] = useState<any>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [fareCalculation, setFareCalculation] = useState<any>(null)
+  const [serverQuote, setServerQuote] = useState<ServerPaymentQuote | null>(null)
   const [currentTrip, setCurrentTrip] = useState<any>(null)
   const { isAuthenticated, user, signIn, loading } = usePi()
   const { toast } = useToast()
@@ -31,18 +31,14 @@ function RiderApp() {
       id: "teoscar",
       name: "TeosCar",
       icon: "🚗",
-      eta: "3 min",
-      distanceKm: 5.2,
-      durationMinutes: 12,
+      eta: "Unavailable",
       description: "Standard ride for 1-4 passengers",
     },
     {
       id: "teosxl",
       name: "TeosXL",
       icon: "🚙",
-      eta: "5 min",
-      distanceKm: 5.2,
-      durationMinutes: 12,
+      eta: "Unavailable",
       description: "Spacious ride for 5-6 passengers",
     },
   ]
@@ -57,81 +53,57 @@ function RiderApp() {
       return
     }
 
-    if (pickup && destination) {
-      try {
-        // Calculate fare from backend
-        const fareData = await calculateFare(5.2, 12, false)
-        setFareCalculation(fareData)
-        setShowBooking(true)
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to calculate fare. Please try again.",
-          variant: "destructive",
-        })
-      }
+    if (!pickupCoords || !destCoords) {
+      toast({
+        title: "Route evidence required",
+        description: "Select pickup and destination from the map before continuing",
+        variant: "destructive",
+      })
+      return
     }
-  }
-
-  const handleConfirmRide = async () => {
-    if (!selectedRide || !isAuthenticated || !user) return
 
     setIsProcessing(true)
     try {
-      // Step 1: Create trip in database
-      const { trip } = await createTrip({
-        riderId: user.user.uid,
-        pickupLocation: pickupCoords || { lat: 31.2001, lng: 29.9187 },
-        dropoffLocation: destCoords || { lat: 31.2156, lng: 29.9553 },
-        pickupAddress: pickup,
-        dropoffAddress: destination,
-        serviceType: "taxi",
-        distanceKm: selectedRide.distanceKm,
-        durationMinutes: selectedRide.durationMinutes,
+      const csrfToken = window.sessionStorage.getItem("rev2e_csrf_token") ?? ""
+      const csrfEpoch = window.sessionStorage.getItem("rev2e_csrf_epoch") ?? ""
+
+      const response = await fetch("/api/payments/quote", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+          "x-rev2e-csrf": csrfToken,
+          "x-rev2e-csrf-epoch": csrfEpoch,
+        },
+        body: JSON.stringify({
+          serviceType: "taxi",
+          pickupLocation: pickupCoords,
+          dropoffLocation: destCoords,
+        }),
       })
 
-      setCurrentTrip(trip)
+      if (!response.ok) {
+        throw new Error(`Server quote unavailable (${response.status})`)
+      }
 
-      await createPiPayment(
-        trip.estimated_fare,
-        `TEOSPITAXI Ride - ${trip.trip_number}`,
-        {
-          tripId: trip.id,
-          pickup,
-          destination,
-        },
-        // Approval callback
-        async (paymentId) => {
-          await createEscrow(trip.id, paymentId, paymentId)
-          toast({
-            title: "Payment Secured",
-            description: "Funds held in escrow, finding your driver...",
-          })
-        },
-        // Completion callback
-        async (paymentId, txid) => {
-          toast({
-            title: "Ride Booked Successfully!",
-            description: `Your ${selectedRide.name} is on the way. Trip #${trip.trip_number}`,
-          })
-
-          // Reset state
-          setShowBooking(false)
-          setSelectedRide(null)
-          setPickup("")
-          setDestination("")
-        },
-      )
-    } catch (error: any) {
-      console.error("[v0] Ride booking error:", error)
+      const data = await response.json()
+      setFareCalculation(data)
+      setServerQuote(data.quote)
+      setShowBooking(true)
+    } catch (error) {
       toast({
-        title: "Booking Failed",
-        description: error.message || "Please try again or contact support",
+        title: "Quote unavailable",
+        description: error instanceof Error ? error.message : "Please try again",
         variant: "destructive",
       })
     } finally {
       setIsProcessing(false)
     }
+  }
+
+  const handleConfirmRide = async () => {
+    if (!selectedRide || !serverQuote) return
+    setCurrentTrip({ id: selectedRide.id, trip_number: serverQuote.paymentIntentId })
   }
 
   return (
@@ -262,8 +234,8 @@ function RiderApp() {
                   <h3 className="font-semibold text-lg">Choose a ride</h3>
 
                   {rideOptions.map((ride) => {
-                    const ridePrice = fareCalculation?.fare?.totalFare || 15.5
-                    const rideUsd = (ridePrice * 0.53).toFixed(2)
+                    const ridePrice = serverQuote?.amountDisplay ?? fareCalculation?.fare?.totalFare ?? 0
+                    const priceUnit = "Pi only"
 
                     return (
                       <Card
@@ -282,7 +254,7 @@ function RiderApp() {
                               <div className="font-semibold">{ride.name}</div>
                               <div className="text-sm text-muted-foreground flex items-center gap-1">
                                 <Clock className="h-3 w-3" />
-                                <span>{ride.eta} away</span>
+                                <span>Server ETA {ride.eta.toLowerCase()}</span>
                               </div>
                             </div>
                           </div>
@@ -291,7 +263,7 @@ function RiderApp() {
                               <span className="text-accent">π</span>
                               <span>{ridePrice}</span>
                             </div>
-                            <div className="text-xs text-muted-foreground">${rideUsd}</div>
+                            <div className="text-xs text-muted-foreground">{priceUnit}</div>
                           </div>
                         </div>
                       </Card>
@@ -308,7 +280,7 @@ function RiderApp() {
                       <div className="flex-1">
                         <div className="font-semibold text-sm">Pay with Pi Network</div>
                         <div className="text-xs text-muted-foreground">
-                          {fareCalculation.fare.totalFare} Pi held in escrow until ride completes
+                          Server-quoted {serverQuote?.amountDisplay ?? fareCalculation?.fare?.totalFare} Pi; settlement recorded only after server verification
                         </div>
                       </div>
                     </div>
@@ -327,6 +299,22 @@ function RiderApp() {
                   </Card>
                 )}
 
+                {currentTrip && serverQuote && (
+                  <PaymentFlow
+                    tripId={currentTrip.id}
+                    quote={serverQuote}
+                    serviceType="ride"
+                    description={`TEOSPITAXI ride ${currentTrip.trip_number}`}
+                    onVerified={() => {
+                      setShowBooking(false)
+                      setSelectedRide(null)
+                      setPickup("")
+                      setDestination("")
+                      setCurrentTrip(null)
+                    }}
+                  />
+                )}
+
                 {/* Action Buttons */}
                 <div className="flex gap-2">
                   <Button variant="outline" className="flex-1 bg-transparent" onClick={() => setShowBooking(false)}>
@@ -336,9 +324,9 @@ function RiderApp() {
                     size="lg"
                     className="flex-1"
                     onClick={handleConfirmRide}
-                    disabled={!selectedRide || isProcessing}
+                    disabled={!selectedRide || !serverQuote || isProcessing}
                   >
-                    {isProcessing ? "Processing..." : "Confirm Ride"}
+                    {isProcessing ? "Processing..." : "Continue to Payment"}
                   </Button>
                 </div>
               </>
