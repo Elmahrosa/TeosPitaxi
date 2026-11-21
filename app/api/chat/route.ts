@@ -1,233 +1,108 @@
 import { generateText } from "ai"
-import { NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server"
+import { assertCanonicalOrigin, fail, noStore, readBoundedJson } from "@/lib/server-security"
 import { TEOSPITAXI_KNOWLEDGE } from "@/lib/teospitaxi-knowledge"
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const { message } = await req.json()
+    assertCanonicalOrigin(req)
+    const body = await readBoundedJson(req)
+    const message =
+      typeof body === "object" && body !== null && typeof (body as { message?: unknown }).message === "string"
+        ? (body as { message: string }).message.trim()
+        : ""
 
-    if (!message) {
-      return NextResponse.json({ error: "Message is required" }, { status: 400 })
+    if (!message || message.length > 2000) {
+      return noStore(NextResponse.json({ error: "A message of 1-2000 characters is required" }, { status: 400 }))
     }
 
     try {
       const { text } = await generateText({
-        model: "google/gemini-2.5-flash-image", // Free tier: 6M tokens/day
-        system: `You are the official TEOSPITAXI AI Assistant with complete knowledge of the platform.
+        model: "google/gemini-2.5-flash",
+        system: `You are the TEOSPITAXI assistant for a release candidate that is not yet launch-approved.
 
 ${TEOSPITAXI_KNOWLEDGE}
 
-IMPORTANT INSTRUCTIONS:
-- Answer ALL questions directly using the knowledge base above
-- Be friendly, professional, and enthusiastic about blockchain mobility
-- NEVER redirect users to WhatsApp, Telegram, or external support unless they specifically ask for contact info
-- Provide specific, detailed answers with examples
-- If asked about booking, guide them through the exact steps
-- If asked about prices, explain the transparent pricing formula
-- If asked about Pi Network, explain how to join with referral code aams1969
-- Emphasize that TeosPiTaxi is the FIRST Pi blockchain ride-sharing platform
-- Promote the petition for digital currency regulation
-- Always mention founder's referral code when relevant: aams1969
-- Be civic-minded and promote transparency, fairness, and community governance
-
-If you don't know something specific, say so honestly but provide related helpful information from the knowledge base.
-
-Your goal: Help users understand, join, and use TeosPiTaxi successfully!`,
+STRICT RULES:
+- Do not claim Pi Core Team verification, KYC completion, mainnet launch, completed testnet testing, or production readiness.
+- Do not claim driver document submission is available. It is disabled.
+- Do not claim automated A2U transfers are executed. Settlement is recorded in a server ledger only.
+- Approved split: 10% treasury; 5% only to a qualified agent; driver receives 85% with a qualified agent or 90% without one.
+- The browser never sets identity, fare, distance, duration, quote, or settlement authority.
+- If asked about launch status, say the release is pending trusted verifier configuration, verification evidence, and separate approval.
+- Do not invent statistics, wallet balances, referral earnings, or transaction counts.
+- Answer from the knowledge base; if it does not say, say it is not yet available.`,
         prompt: message,
       })
 
-      return NextResponse.json({ response: text })
-    } catch (aiError: any) {
+      return noStore(NextResponse.json({ response: text }))
+    } catch (aiError) {
       console.error("[AI Error]", aiError)
-
-      const basicAnswer = getBasicAnswer(message)
-      return NextResponse.json({
-        response: basicAnswer,
-      })
+      return noStore(NextResponse.json({ response: getBasicAnswer(message) }))
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error("[Chat API Error]", error)
-    return NextResponse.json(
-      {
-        error: "Service temporarily unavailable",
-        response:
-          "I apologize for the technical difficulty. Please try refreshing the page or asking your question again.",
-      },
-      { status: 500 },
-    )
+    return fail(400, "INVALID_REQUEST")
   }
 }
 
 function getBasicAnswer(message: string): string {
-  const lowerMsg = message.toLowerCase()
+  const lower = message.toLowerCase()
 
-  if (lowerMsg.includes("book") || lowerMsg.includes("ride") || lowerMsg.includes("trip")) {
-    return `To book a ride on TeosPiTaxi:
+  if (lower.includes("status") || lower.includes("launch") || lower.includes("verified") || lower.includes("ready")) {
+    return `This is a release candidate, not a launched or Pi-verified product.
 
-1. Go to the Rider app at https://teospitaxi.teosegypt.com/rider
-2. Connect your Pi wallet (required for payment)
-3. Sign the digital currency regulation petition
-4. Enter your pickup location (Alexandria, Cairo, Giza, Aswan, etc.)
-5. Enter your destination
-6. Choose vehicle type (small car, large car, or bike)
-7. See fare estimate
-8. Confirm booking - payment held in secure escrow
-9. Get matched with a driver
-10. Track your ride in real-time
+Still pending:
+- trusted payment verifier configuration and dedicated database LOGIN identities;
+- completed migration and verification evidence;
+- Pi Developer Portal listing and Pi Core Team verification;
+- separate owner approval for tests, deployment, and mainnet launch.
 
-Payment is automatically split: 80% to driver, 15% to founder, 5% to referring agent.
-
-Need help? Just ask me more questions!`
+The development banner remains visible until verification is actually confirmed.`
   }
 
-  if (lowerMsg.includes("price") || lowerMsg.includes("fare") || lowerMsg.includes("cost")) {
-    return `TeosPiTaxi uses transparent dynamic pricing based on:
+  if (lower.includes("book") || lower.includes("ride") || lower.includes("trip")) {
+    return `The intended booking flow is:
+1. Open the app from the Pi Browser ecosystem.
+2. Sign in only after the server records browse-first evidence.
+3. Select pickup and destination from the map so the server can derive route metrics.
+4. Request a server-issued quote.
+5. Start the Pi SDK payment with that exact quoted amount.
+6. Server verification records approval, completion, and settlement.
 
-- **Distance:** Rate per kilometer
-- **Time:** Rate per minute  
-- **Demand:** Surge multiplier during peak times (always shown)
-- **Vehicle Type:** Small cars cheaper than large cars/SUVs
-
-Fare Formula: (Distance × km_rate) + (Time × min_rate) × surge_multiplier
-
-All pricing is transparent - you see the exact calculation before booking. First month promotional rates may be available.
-
-Payment splits:
-- 80% → Driver
-- 15% → TEOS Treasury (Founder)
-- 5% → Referring Agent
-
-Want to see a fare estimate? Tell me your pickup and destination!`
+The current release candidate fails closed until the trusted verifier boundary is configured.`
   }
 
-  if (lowerMsg.includes("pi") || lowerMsg.includes("wallet") || lowerMsg.includes("cryptocurrency")) {
-    return `TeosPiTaxi uses Pi cryptocurrency exclusively for all payments!
+  if (lower.includes("price") || lower.includes("fare") || lower.includes("cost") || lower.includes("split")) {
+    return `Fares are derived server-side from active pricing policy and trusted route metrics; the browser does not submit distance, duration, fare, or agent selection.
 
-**To join Pi Network:**
-1. Download Pi Network app (iOS/Android)
-2. Use referral code: **aams1969** (founder's code)
-3. Direct link: https://minepi.com/aams1969
-4. Start mining Pi for free on your phone
-5. Complete KYC verification
-6. Create your Pi wallet
-7. Authorize TeosPiTaxi to use your wallet
+Approved split:
+- 10% TEOS Treasury;
+- 5% only to a qualified agent;
+- 85% driver with a qualified agent, or 90% driver without one.
 
-**Why Pi?**
-- Secure blockchain escrow
-- No credit card fees
-- Instant driver payments
-- Transparent on-chain transactions
-- Global acceptance
-
-TeosPiTaxi is the world's FIRST Pi-native ride-sharing platform!`
+Integer minor units are authoritative. Display values are numeric Pi only. No automatic payout is executed.`
   }
 
-  if (lowerMsg.includes("driver") || lowerMsg.includes("earn") || lowerMsg.includes("work")) {
-    return `Become a TeosPiTaxi driver and earn Pi cryptocurrency!
+  if (lower.includes("driver") || lower.includes("document") || lower.includes("earn")) {
+    return `Driver document submission is currently unavailable and has no successful completion state.
 
-**Requirements:**
-- Age 21+
-- Valid driver's license
-- Vehicle 2020 or newer (small car, large car, or bike)
-- Pi Network wallet
-- Clean driving record
-
-**Documents Needed:**
-- Driver's license photo
-- Vehicle registration
-- Insurance proof
-- National ID/passport
-
-**How to Register:**
-1. Go to https://teospitaxi.teosegypt.com/driver
-2. Create profile
-3. Upload documents
-4. Sign digital currency petition
-5. Wait for verification (24-48 hours)
-6. Start earning!
-
-**Earnings:**
-- You keep 80% of every fare
-- Instant Pi payment after trip
-- No commission delays
-- Transparent pricing
-
-Join the blockchain revolution in mobility!`
+Driver earnings are not fabricated in this release candidate. A verified settlement share is recorded only after server-side verification, and automated transfers remain disabled.`
   }
 
-  if (lowerMsg.includes("agent") || lowerMsg.includes("refer") || lowerMsg.includes("commission")) {
-    return `Join TeosPiTaxi's Global Agent Network and earn commissions!
+  if (lower.includes("agent") || lower.includes("refer") || lower.includes("commission")) {
+    return `Agent qualification is derived server-side from the approved policy and frozen 006 counting semantics. A 5% commission applies only to a qualified agent; otherwise the driver receives 90% and the agent receives 0%.
 
-**How it Works:**
-- Share your referral code with riders and drivers
-- Earn 5% commission on every ride they take
-- Build your network worldwide
-- Passive income in Pi cryptocurrency
-
-**Get Started:**
-1. Go to https://teospitaxi.teosegypt.com/agent
-2. Create agent profile
-3. Get your unique referral code
-4. Share with your network
-5. Track earnings in real-time
-
-**Founder's Referral Code:** aams1969
-
-Use this code when joining Pi Network to connect with the TeosPiTaxi community!
-
-**Agent Benefits:**
-- 5% of all referred rides
-- Unlimited earning potential
-- Help grow blockchain mobility in Egypt and beyond
-- Be part of civic-first governance`
+No referral totals, tiers, or earnings are shown until they come from verified server data.`
   }
 
-  if (lowerMsg.includes("petition") || lowerMsg.includes("sign") || lowerMsg.includes("regulation")) {
-    return `All TeosPiTaxi users must sign this important petition:
+  if (lower.includes("pi") || lower.includes("wallet") || lower.includes("payment")) {
+    return `TeosPiTaxi uses Pi payments only. Pi authentication, metrics, verification, and settlement must pass through a trusted server boundary. The browser amount only starts the Pi SDK; it never authorizes settlement.
 
-**Join the Movement: Sign the Petition to Regulate Digital Currencies in Egypt**
-
-🔗 https://www.change.org/p/join-the-movement-sign-the-petition-to-regulate-digital-currencies-in-egypt
-
-**Why this matters:**
-- Advocates for legal framework for cryptocurrencies in Egypt
-- Protects digital currency users
-- Promotes innovation-friendly regulations
-- Supports financial inclusion through blockchain
-- Helps legitimize platforms like TeosPiTaxi
-
-**You must sign before:**
-- Connecting your Pi wallet
-- Booking your first ride
-- Becoming a driver or agent
-
-Join thousands supporting the future of digital finance in Egypt!`
+Automated A2U transfers are disabled.`
   }
 
-  // Default comprehensive response
-  return `Welcome to TeosPiTaxi - the world's FIRST Pi blockchain ride-sharing platform!
+  return `I can explain the release status, booking flow, server-derived pricing, approved fee split, driver documents, agent qualification, and Pi payment boundary.
 
-I can help you with:
-✅ Booking rides in Alexandria, Cairo, Giza, Aswan
-✅ Understanding Pi cryptocurrency payments
-✅ Becoming a driver (earn 80% of fares)
-✅ Joining as an agent (earn 5% commissions)
-✅ Learning about transparent pricing
-✅ Signing up for Pi Network (code: aams1969)
-✅ Supporting digital currency regulation petition
-
-**Quick Links:**
-🚗 Book Ride: https://teospitaxi.teosegypt.com/rider
-🚕 Become Driver: https://teospitaxi.teosegypt.com/driver
-💰 Pi Network: https://minepi.com/aams1969
-✍️ Petition: https://www.change.org/p/join-the-movement-sign-the-petition-to-regulate-digital-currencies-in-egypt
-
-**What would you like to know?**
-- How to book a ride?
-- How pricing works?
-- How to earn as a driver?
-- How to join Pi Network?
-- How to become an agent?
-
-Just ask me anything!`
+This release candidate is not launch-approved and fails closed until the trusted verifier boundary is configured.`
 }

@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, hackathon/pi-mainnet-readiness ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, hackathon/pi-mainnet-readiness ]
 
 jobs:
   build:
@@ -12,28 +12,28 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
-          cache: 'pnpm'
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 9
+          node-version: 22
+          cache: 'npm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: npm ci
 
-      - name: Lint code
-        run: pnpm lint
+      - name: Dependency audit
+        run: npm audit --audit-level=high
 
       - name: Typecheck
-        run: pnpm typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Tests
+        run: npm test
 
       - name: Build project
-        run: pnpm build
-
+        run: npm run build

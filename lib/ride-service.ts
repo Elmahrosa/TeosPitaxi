@@ -1,151 +1,40 @@
-// Ride service for managing trip lifecycle and state transitions
+// Revision 2e: legacy in-memory ride lifecycle helper is disabled.
+// Trip state transitions are owned by server-authorized database functions.
 
 export type RideStatus = "requested" | "accepted" | "started" | "completed" | "cancelled" | "disputed"
 
 export interface Ride {
   id: string
   riderId: string
-  riderName: string
   driverId: string | null
-  driverName: string | null
-  pickup: string
-  destination: string
-  fareEstimate: number
-  finalFare?: number
   status: RideStatus
-  escrowId: string
-  paymentId: string
-  requestedAt: string
-  acceptedAt?: string
-  startedAt?: string
-  completedAt?: string
-  cancelledAt?: string
+  availability: "unavailable"
 }
 
-// Create ride request
-export async function createRide(
-  riderId: string,
-  riderName: string,
-  pickup: string,
-  destination: string,
-  fareEstimate: number,
-  paymentId: string,
-  escrowId: string,
-): Promise<Ride> {
-  const ride: Ride = {
-    id: `ride-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    riderId,
-    riderName,
-    driverId: null,
-    driverName: null,
-    pickup,
-    destination,
-    fareEstimate,
-    status: "requested",
-    escrowId,
-    paymentId,
-    requestedAt: new Date().toISOString(),
-  }
+class DisabledRideServiceError extends Error {
+  readonly code = "RIDE_SERVICE_DISABLED"
 
-  // In production: Store in database
-  // await db.rides.insert(ride)
-
-  return ride
-}
-
-// Driver accepts ride
-export async function acceptRide(rideId: string, driverId: string, driverName: string): Promise<Ride> {
-  // In production: Update database
-  // const ride = await db.rides.findById(rideId)
-  // await db.rides.update(rideId, { driverId, driverName, status: 'accepted', acceptedAt: new Date() })
-  // await holdInEscrow(ride.escrowId, driverId, ride.paymentId)
-
-  return {
-    id: rideId,
-    riderId: "",
-    riderName: "",
-    driverId,
-    driverName,
-    pickup: "",
-    destination: "",
-    fareEstimate: 0,
-    status: "accepted",
-    escrowId: "",
-    paymentId: "",
-    requestedAt: "",
-    acceptedAt: new Date().toISOString(),
+  constructor() {
+    super("Ride lifecycle operations are disabled in this release candidate")
   }
 }
 
-// Driver starts trip
-export async function startRide(rideId: string): Promise<Ride> {
-  // Update status and timestamp
-  // await db.rides.update(rideId, { status: 'started', startedAt: new Date() })
-
-  return {
-    id: rideId,
-    riderId: "",
-    riderName: "",
-    driverId: null,
-    driverName: null,
-    pickup: "",
-    destination: "",
-    fareEstimate: 0,
-    status: "started",
-    escrowId: "",
-    paymentId: "",
-    requestedAt: "",
-    startedAt: new Date().toISOString(),
-  }
+export async function createRide(): Promise<Ride> {
+  throw new DisabledRideServiceError()
 }
 
-// Driver completes trip
-export async function completeRide(rideId: string, finalFare: number): Promise<Ride> {
-  // Fetch ride and trigger escrow release
-  // const ride = await db.rides.findById(rideId)
-  // await db.rides.update(rideId, { status: 'completed', finalFare, completedAt: new Date() })
-  // await releaseFromEscrow(ride.escrowId, ride.paymentId, txid, driverAddress, agentAddress)
-
-  return {
-    id: rideId,
-    riderId: "",
-    riderName: "",
-    driverId: null,
-    driverName: null,
-    pickup: "",
-    destination: "",
-    fareEstimate: 0,
-    finalFare,
-    status: "completed",
-    escrowId: "",
-    paymentId: "",
-    requestedAt: "",
-    completedAt: new Date().toISOString(),
-  }
+export async function acceptRide(): Promise<Ride> {
+  throw new DisabledRideServiceError()
 }
 
-// Cancel ride (before or after acceptance)
-export async function cancelRide(rideId: string, cancelledBy: "rider" | "driver", reason: string): Promise<Ride> {
-  // const ride = await db.rides.findById(rideId)
+export async function startRide(): Promise<Ride> {
+  throw new DisabledRideServiceError()
+}
 
-  // If driver hasn't accepted yet, full refund
-  // If driver accepted, may incur cancellation fee
-  // await refundFromEscrow(ride.escrowId, ride.paymentId, reason)
-  // await db.rides.update(rideId, { status: 'cancelled', cancelledAt: new Date() })
+export async function completeRide(): Promise<Ride> {
+  throw new DisabledRideServiceError()
+}
 
-  return {
-    id: rideId,
-    riderId: "",
-    riderName: "",
-    driverId: null,
-    driverName: null,
-    pickup: "",
-    destination: "",
-    fareEstimate: 0,
-    status: "cancelled",
-    escrowId: "",
-    paymentId: "",
-    requestedAt: "",
-    cancelledAt: new Date().toISOString(),
-  }
+export async function cancelRide(): Promise<Ride> {
+  throw new DisabledRideServiceError()
 }

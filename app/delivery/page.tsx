@@ -27,27 +27,21 @@ function DeliveryApp() {
       id: "express",
       name: "Express Delivery",
       icon: "⚡",
-      eta: "15-30 min",
-      price: 8.5,
-      usdPrice: 4.53,
+      eta: "Unavailable",
       description: "Fastest delivery for urgent items",
     },
     {
       id: "standard",
       name: "Standard Delivery",
       icon: "📦",
-      eta: "45-60 min",
-      price: 5.0,
-      usdPrice: 2.67,
+      eta: "Unavailable",
       description: "Regular delivery for most items",
     },
     {
       id: "scheduled",
       name: "Scheduled Delivery",
       icon: "📅",
-      eta: "Choose time",
-      price: 6.5,
-      usdPrice: 3.47,
+      eta: "Unavailable",
       description: "Pick your preferred delivery time",
     },
   ]
@@ -63,7 +57,11 @@ function DeliveryApp() {
     }
 
     if (pickup && destination && packageSize && recipientPhone) {
-      setShowBooking(true)
+      toast({
+        title: "Server quoting unavailable",
+        description: "Delivery fares are not configured in this release candidate; the browser cannot set a fare.",
+        variant: "destructive",
+      })
     } else {
       toast({
         title: "Missing Information",
@@ -222,11 +220,8 @@ function DeliveryApp() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="font-bold flex items-center gap-1">
-                            <span className="text-accent">π</span>
-                            <span>{option.price}</span>
-                          </div>
-                          <div className="text-xs text-muted-foreground">${option.usdPrice}</div>
+                          <div className="font-bold">Server quote required</div>
+                          <div className="text-xs text-muted-foreground">Pi only; no fiat conversion</div>
                         </div>
                       </div>
                     </Card>
@@ -242,7 +237,7 @@ function DeliveryApp() {
                     <div className="flex-1">
                       <div className="font-semibold text-sm">Pay with Pi Network</div>
                       <div className="text-xs text-muted-foreground">
-                        Payment held in escrow until delivery confirmed
+                        Settlement recorded only after trusted server verification; no automatic payout
                       </div>
                     </div>
                   </div>
@@ -253,8 +248,8 @@ function DeliveryApp() {
                   <Button variant="outline" className="flex-1 bg-transparent" onClick={() => setShowBooking(false)}>
                     Back
                   </Button>
-                  <Button size="lg" className="flex-1">
-                    Confirm Delivery
+                  <Button size="lg" className="flex-1" disabled>
+                    Confirm Delivery Unavailable
                   </Button>
                 </div>
               </>

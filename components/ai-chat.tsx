@@ -11,16 +11,16 @@ export function AIChat() {
   const [messages, setMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([
     {
       role: "assistant",
-      content: `Welcome to TeosPiTaxi! 🚗 I'm your AI assistant with complete knowledge of our Pi blockchain ride-sharing platform.
+      content: `Welcome to TeosPiTaxi. I can explain this release candidate only.
 
-I can help you with:
-• Booking rides across Egypt
-• Understanding Pi payments
-• Becoming a driver or agent
-• Joining Pi Network (code: aams1969)
-• Platform features and pricing
+I can help with:
+• Server-derived ride and delivery quoting
+• Pi payment verification boundaries
+• Approved fee split and agent qualification
+• Driver-document and governance availability
+• Release status and outstanding evidence
 
-What would you like to know?`,
+This release is not launch-approved and fails closed until the trusted verifier boundary is configured.`,
     },
   ])
   const [input, setInput] = useState("")
@@ -79,7 +79,7 @@ What would you like to know?`,
     }
   }
 
-  const quickActions = ["How to book a ride?", "How much does it cost?", "How to become a driver?", "Join Pi Network"]
+  const quickActions = ["How to book a ride?", "How is the fare derived?", "How do agent commissions work?", "What is the release status?"]
 
   const handleQuickAction = (action: string) => {
     setInput(action)

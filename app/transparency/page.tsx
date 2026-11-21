@@ -52,7 +52,7 @@ function TransparencyPortal() {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold">Transparency Portal</h1>
-                  <p className="text-xs text-muted-foreground">Open governance & audit records</p>
+                  <p className="text-xs text-muted-foreground">Server-verified release-candidate records</p>
                 </div>
               </Link>
               <Link href="/admin">
@@ -89,7 +89,7 @@ function TransparencyPortal() {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold">Transparency Portal</h1>
-                  <p className="text-xs text-muted-foreground">Open governance & audit records</p>
+                  <p className="text-xs text-muted-foreground">Server-verified release-candidate records</p>
                 </div>
               </Link>
               <Link href="/admin">
@@ -150,7 +150,7 @@ function TransparencyPortal() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold">Transparency Portal</h1>
-                <p className="text-xs text-muted-foreground">Open governance & audit records</p>
+                <p className="text-xs text-muted-foreground">Server-verified release-candidate records</p>
               </div>
             </Link>
             <Link href="/admin">
@@ -169,116 +169,55 @@ function TransparencyPortal() {
             <Shield className="h-4 w-4" />
             Civic-First Platform
           </div>
-          <h2 className="text-4xl font-bold mb-4">Built on Transparency</h2>
+          <h2 className="text-4xl font-bold mb-4">Release Candidate Transparency</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            TEOSPITAXI operates with complete transparency. All transactions, governance decisions, and audit reports
-            are publicly accessible and verifiable on the Pi blockchain.
+            This portal shows only server-verified data when the trusted verifier boundary is connected. It does not
+            claim that all records are public, permanent, immutable, or verifiable on the Pi blockchain.
           </p>
         </div>
 
         {/* Platform Metrics */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <Card className="p-4 text-center">
-            <p className="text-sm text-muted-foreground mb-1">Total Trips</p>
-            <p className="text-2xl font-bold">{formatNumber(stats?.totalTrips)}</p>
-          </Card>
-          <Card className="p-4 text-center">
-            <p className="text-sm text-muted-foreground mb-1">Completed Trips</p>
-            <p className="text-2xl font-bold">{formatNumber(stats?.completedTrips)}</p>
-          </Card>
-          <Card className="p-4 text-center">
-            <p className="text-sm text-muted-foreground mb-1">Total Volume (π)</p>
-            <p className="text-xl font-bold flex items-center justify-center gap-1">
-              <span className="text-accent">π</span>
-              {formatNumber(stats?.totalPiVolume, 2)}
-            </p>
-          </Card>
-          <Card className="p-4 text-center">
-            <p className="text-sm text-muted-foreground mb-1">Active Drivers</p>
-            <p className="text-2xl font-bold">{formatNumber(stats?.activeDrivers)}</p>
-          </Card>
-          <Card className="p-4 text-center">
-            <p className="text-sm text-muted-foreground mb-1">Active Agents</p>
-            <p className="text-2xl font-bold">{formatNumber(stats?.activeAgents)}</p>
-          </Card>
-          <Card className="p-4 text-center">
-            <p className="text-sm text-muted-foreground mb-1">Total Users</p>
-            <p className="text-2xl font-bold">{formatNumber(stats?.totalUsers)}</p>
-          </Card>
-        </div>
+        <Card className="p-6 text-center">
+          <p className="text-lg font-semibold mb-2">Platform statistics unavailable</p>
+          <p className="text-sm text-muted-foreground">
+            Counts, volume, balances, and recent activity are shown only after trusted server data is connected and
+            verified. No totals are fabricated in this release candidate.
+          </p>
+        </Card>
 
         {/* Financial Distribution */}
         <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
           <Card className="p-6">
             <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <DollarSign className="h-5 w-5" />
-              Revenue Distribution
+              Approved Split
             </h3>
             <div className="space-y-4">
-              {stats?.distribution ? (
-                <>
-                  <div className="flex items-center justify-between text-lg mb-2">
-                    <span className="font-medium">Driver Payout</span>
-                    <span className="font-bold text-accent">{stats.distribution.driverPayoutPercent}%</span>
-                  </div>
-                  <div className="flex items-center justify-between text-lg mb-2">
-                    <span className="font-medium">TEOS Treasury</span>
-                    <span className="font-bold text-accent">{stats.distribution.treasuryFeePercent}%</span>
-                  </div>
-                  <div className="flex items-center justify-between text-lg mb-2">
-                    <span className="font-medium">Agent Commission</span>
-                    <span className="font-bold text-accent">{stats.distribution.agentCommissionPercent}%</span>
-                  </div>
-                  <div className="flex items-center justify-between text-lg mb-2">
-                    <span className="font-medium">Treasury Balance</span>
-                    <span className="font-bold text-accent">π {formatNumber(stats?.treasuryBalance, 2)}</span>
-                  </div>
-                </>
-              ) : (
-                <p className="text-muted-foreground">Loading distribution data...</p>
-              )}
+              <div className="flex items-center justify-between text-lg mb-2">
+                <span className="font-medium">Driver</span>
+                <span className="font-bold text-accent">85% qualified / 90% no agent</span>
+              </div>
+              <div className="flex items-center justify-between text-lg mb-2">
+                <span className="font-medium">TEOS Treasury</span>
+                <span className="font-bold text-accent">10%</span>
+              </div>
+              <div className="flex items-center justify-between text-lg mb-2">
+                <span className="font-medium">Qualified agent only</span>
+                <span className="font-bold text-accent">5% / 0% otherwise</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Amounts are server-derived in integer minor units. No treasury balance or transaction history is
+                published by this release candidate.
+              </p>
             </div>
           </Card>
 
-          {/* Recent Transactions */}
           <Card className="p-6">
             <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <CheckCircle className="h-5 w-5" />
               Recent Transactions
             </h3>
-            <div className="space-y-3">
-              {stats?.recentTransactions && stats?.recentTransactions.length > 0 ? (
-                <div className="space-y-2">
-                  {stats.recentTransactions.slice(0, 5).map((tx) => (
-                    <div key={tx.id} className="flex items-center justify-between p-3 border border-border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                          {tx.type === "Ride Payment" ? (
-                            <Users className="h-5 w-5 text-primary" />
-                          ) : (
-                            <Users className="h-5 w-5 text-accent" />
-                          )}
-                        </div>
-                        <div>
-                          <div className="font-medium">{tx.id}</div>
-                          <div className="text-sm text-muted-foreground">
-                            <span>{tx.type} - {formatTimeAgo(tx.timestamp)}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-bold flex items-center gap-1">
-                          <span className="text-accent">π</span>
-                          <span>{formatNumber(tx.amount, 2)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground">No recent transactions available</p>
-              )}
-            </div>
+            <p className="text-muted-foreground">No verified transaction history is available</p>
           </Card>
         </div>
 
@@ -286,16 +225,15 @@ function TransparencyPortal() {
         <div className="space-y-4">
           <h3 className="text-2xl font-bold">Governance Principles</h3>
           <div className="grid md:grid-cols-2 gap-4">
-            {/* These remain as static principles since they're foundational values */}
             <Card key="financial" className="p-6">
               <div className="flex items-start gap-4">
                 <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
                   <DollarSign className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-2">Open Financial Records</h4>
+                  <h4 className="font-semibold mb-2">Policy Terms</h4>
                   <p className="text-sm text-muted-foreground">
-                    All platform fees and revenue distributions are publicly auditable on the Pi blockchain
+                    The approved split is documented in server policy; no blockchain auditability is claimed
                   </p>
                 </div>
               </div>
@@ -306,9 +244,9 @@ function TransparencyPortal() {
                   <Users className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-2">Community Oversight</h4>
+                  <h4 className="font-semibold mb-2">Governance Pending</h4>
                   <p className="text-sm text-muted-foreground">
-                    Major platform decisions require community vote from verified stakeholders
+                    Constitution and stakeholder rules remain owner-supplied and uninitialized
                   </p>
                 </div>
               </div>
@@ -319,9 +257,9 @@ function TransparencyPortal() {
                   <FileText className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-2">Regular Audits</h4>
+                  <h4 className="font-semibold mb-2">Audit Evidence Pending</h4>
                   <p className="text-sm text-muted-foreground">
-                    Quarterly independent audits of financial records, security, and governance practices
+                    No completed audit, penetration test, or quarterly review is claimed
                   </p>
                 </div>
               </div>
@@ -332,9 +270,9 @@ function TransparencyPortal() {
                   <Shield className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-2">Fair Dispute Resolution</h4>
+                  <h4 className="font-semibold mb-2">Dispute Process Pending</h4>
                   <p className="text-sm text-muted-foreground">
-                    Transparent dispute resolution process with community arbitrators
+                    Review timelines and appeal routes require owner-defined policy
                   </p>
                 </div>
               </div>
@@ -346,15 +284,15 @@ function TransparencyPortal() {
         <Card className="p-6 bg-primary/5 border-primary/20">
           <h3 className="text-xl font-semibold mb-3 flex items-center gap-2">
             <UserPlus className="h-5 w-5" />
-            Join the Governance
+            Governance Participation Unavailable
           </h3>
           <p className="text-muted-foreground mb-4">
-            Verified drivers, riders, and agents can participate in platform governance. Propose changes, vote on
-            policies, and help shape the future of TEOSPITAXI.
+            Verified governance participation is not enabled in this release candidate. Constitution, voter eligibility,
+            and forum configuration remain owner-supplied.
           </p>
-          <Button className="w-full">
+          <Button className="w-full" disabled>
             <Users className="h-4 w-4 mr-2" />
-            Join Community Forum
+            Community Forum Unavailable
           </Button>
         </Card>
       </main>

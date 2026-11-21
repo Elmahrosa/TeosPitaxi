@@ -31,7 +31,7 @@ export function TeosLogo({ size = "md", className }: TeosLogoProps) {
         className="w-full h-full"
         aria-label="TeosPiTaxi Logo"
       >
-        {/* Blockchain nodes circle - geometric lines for transparency */}
+        {/* Decorative network ring */}
         <circle
           cx="50"
           cy="50"
@@ -43,13 +43,13 @@ export function TeosLogo({ size = "md", className }: TeosLogoProps) {
           opacity="0.6"
         />
 
-        {/* Inner blockchain nodes */}
+        {/* Decorative connection points */}
         <circle cx="50" cy="15" r="2" fill="oklch(0.25 0.08 240)" opacity="0.5" />
         <circle cx="85" cy="50" r="2" fill="oklch(0.25 0.08 240)" opacity="0.5" />
         <circle cx="50" cy="85" r="2" fill="oklch(0.25 0.08 240)" opacity="0.5" />
         <circle cx="15" cy="50" r="2" fill="oklch(0.25 0.08 240)" opacity="0.5" />
 
-        {/* Connecting lines - ledger transparency symbol */}
+        {/* Connecting lines - abstract network symbol */}
         <line x1="50" y1="15" x2="50" y2="30" stroke="oklch(0.25 0.08 240)" strokeWidth="1" opacity="0.3" />
         <line x1="85" y1="50" x2="70" y2="50" stroke="oklch(0.25 0.08 240)" strokeWidth="1" opacity="0.3" />
         <line x1="50" y1="85" x2="50" y2="70" stroke="oklch(0.25 0.08 240)" strokeWidth="1" opacity="0.3" />

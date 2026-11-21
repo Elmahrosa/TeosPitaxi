@@ -25,14 +25,17 @@ export interface FareConfig {
   surgeMultiplier?: number
 }
 
+// Display-only helper. The frozen calculateFare(distanceKm, durationMinutes,
+// hasAgent = false) signature is preserved, but settlement authority lives in
+// the server quote SQL: integer minor units are authoritative there.
 // Default config for Alexandria, Egypt
 export const DEFAULT_FARE_CONFIG: FareConfig = {
   baseFare: 5, // 5 Pi base fare
   perKmRate: 2, // 2 Pi per km
   perMinuteRate: 0.5, // 0.5 Pi per minute
   minimumFare: 8, // Minimum 8 Pi
-  treasuryFeePercent: 15, // 15% to TEOS Treasury (Founder)
-  agentCommissionPercent: 5, // 5% to referring agent
+  treasuryFeePercent: 10, // 10% treasury; server determines the authoritative split
+  agentCommissionPercent: 5, // 5% only when the server qualifies an agent
   surgeMultiplier: 1.0, // Default no surge
 }
 

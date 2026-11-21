@@ -1,29 +1,14 @@
-import { calculateFare, DEFAULT_FARE_CONFIG } from "@/lib/fare-calculator"
+import { type NextRequest } from "next/server"
+import { assertCanonicalOrigin, fail, readBoundedJson, requireTrustedVerifierBoundary } from "@/lib/server-security"
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-
-    const { distanceKm, durationMinutes, hasAgent = false } = body
-
-    // Validate inputs
-    if (typeof distanceKm !== "number" || distanceKm <= 0) {
-      return Response.json({ success: false, error: "Invalid distance" }, { status: 400 })
-    }
-
-    if (typeof durationMinutes !== "number" || durationMinutes <= 0) {
-      return Response.json({ success: false, error: "Invalid duration" }, { status: 400 })
-    }
-
-    const fareEstimate = calculateFare(distanceKm, durationMinutes, hasAgent, DEFAULT_FARE_CONFIG)
-
-    return Response.json({
-      success: true,
-      estimate: fareEstimate,
-      config: DEFAULT_FARE_CONFIG,
-    })
+    assertCanonicalOrigin(request)
+    await readBoundedJson(request)
+    requireTrustedVerifierBoundary()
   } catch (error) {
-    console.error("[TeosPiTaxi] Fare estimation error:", error)
-    return Response.json({ success: false, error: "Failed to calculate fare" }, { status: 500 })
+    return fail(400, "INVALID_REQUEST", error instanceof Error ? error.message : undefined)
   }
+
+  return fail(503, "TRUSTED_VERIFIER_NOT_READY")
 }

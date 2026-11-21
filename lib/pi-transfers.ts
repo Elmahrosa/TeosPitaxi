@@ -1,13 +1,17 @@
-// Server-to-user transfer service for automated payment distribution
-// Uses Pi Platform API v2 for backend transfers
-
-const PI_API_BASE = "https://api.minepi.com"
+// Automated App-to-User transfers are intentionally disabled.
+import "server-only"
+//
+// Official Mainnet A2U support, developer eligibility and the complete set of
+// documented transfer fields have not been proven for this application. Until
+// that evidence exists, no transfer request may leave this process. These
+// functions remain as fail-closed stubs so no caller can accidentally enable
+// automated payouts by importing them.
 
 export interface TransferRequest {
-  to: string // Pi wallet address
+  to: string
   amount: number
   memo: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 export interface TransferResponse {
@@ -18,63 +22,17 @@ export interface TransferResponse {
   txid?: string
 }
 
-// Execute server-to-user transfer (requires backend API key)
-export async function transferPi(transfer: TransferRequest): Promise<TransferResponse> {
-  const apiKey = process.env.PI_API_KEY
-
-  if (!apiKey) {
-    throw new Error("PI_API_KEY not configured for server transfers")
-  }
-
-  try {
-    const response = await fetch(`${PI_API_BASE}/v2/transfers`, {
-      method: "POST",
-      headers: {
-        Authorization: `Key ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        recipient: transfer.to,
-        amount: transfer.amount,
-        memo: transfer.memo,
-        metadata: transfer.metadata,
-      }),
-    })
-
-    if (!response.ok) {
-      throw new Error(`Transfer failed: ${response.statusText}`)
-    }
-
-    const data = await response.json()
-
-    return {
-      transferId: data.identifier,
-      status: data.status,
-      to: transfer.to,
-      amount: transfer.amount,
-      txid: data.transaction?.txid,
-    }
-  } catch (error) {
-    console.error("[v0] Pi transfer error:", error)
-    throw error
+export class AutomatedTransfersUnavailableError extends Error {
+  constructor() {
+    super("Automated Pi A2U transfers are unavailable until Mainnet eligibility is verified")
+    this.name = "AutomatedTransfersUnavailableError"
   }
 }
 
-// Batch transfers for automated distribution
-export async function batchTransferPi(transfers: TransferRequest[]): Promise<TransferResponse[]> {
-  // Execute transfers sequentially to ensure atomicity
-  const results: TransferResponse[] = []
+export async function transferPi(_transfer: TransferRequest): Promise<TransferResponse> {
+  throw new AutomatedTransfersUnavailableError()
+}
 
-  for (const transfer of transfers) {
-    try {
-      const result = await transferPi(transfer)
-      results.push(result)
-    } catch (error) {
-      console.error(`[v0] Failed transfer to ${transfer.to}:`, error)
-      // In production: Implement retry logic and rollback on failure
-      throw error
-    }
-  }
-
-  return results
+export async function batchTransferPi(_transfers: TransferRequest[]): Promise<TransferResponse[]> {
+  throw new AutomatedTransfersUnavailableError()
 }

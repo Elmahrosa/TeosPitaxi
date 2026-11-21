@@ -1,321 +1,130 @@
-﻿![TEOS Sovereign Standing](https://img.shields.io/badge/Standing-Sovereign%20Original%20%E2%80%94%20Elmahrosa%20International-blue?style=for-the-badge)
-[![License: TESL](https://img.shields.io/badge/License-TESL%20%2B%20PolyForm%20Noncommercial-green?style=for-the-badge)](https://github.com/Elmahrosa/Teos-Pharaoh-Portal/blob/main/TESL.md)
+﻿# TEOS PiTaxi — Release Candidate
 
-## 🏛️ Constitutional Authority
+TEOS PiTaxi is a Next.js release candidate for Pi-native mobility. It is **not launch-approved**, **not Pi Core Team verified**, **not submitted to the Pi Developer Portal**, and **not ready for Mainnet operation**. Payment and mutation routes fail closed until the trusted verifier boundary, dedicated database identities, and owner-supplied policy values are configured and independently verified.
 
-This repository derives its authority from the
-**International Civic Blockchain Constitution (ICBC)**:
+Status summary: **Completed** — implementation, local checks, isolated-database verification, demo URL reachability. **Verified** — local and isolated environments only; staging is not verified. **Submitted** — no. **Approved** — no. **Mainnet enabled** — no.
 
-https://github.com/Elmahrosa/International-Civic-Blockchain-Constitution
+## Current implementation scope
 
-Any implementation or use must comply with ICBC and TESL.
+- Separation of browser anon, cookie-aware SSR anon, and server-only Supabase clients.
+- Browse-first Pi session state that must be server-persisted before `Pi.authenticate`.
+- Migration-defined session rotation, CSRF authorization, rate limiting, route metrics, quotes, verification, approval/completion leases, settlement ledger, and webhook replay handling. The artifact has been exercised only in an isolated local database; no staging or production database has been migrated, and app routes remain fail-closed stubs until the trusted verifier service and policy bootstrap are in place.
+- Integer minor-unit settlement with approved split:
+  - 10% treasury.
+  - 5% to a qualified agent only.
+  - 85% driver with a qualified agent; 90% driver without one.
+- Frozen `calculateFare(distanceKm, durationMinutes, hasAgent = false)` signature preserved; authoritative pricing remains server-side.
+- Automated app-to-user transfers disabled; settlement records are ledger entries only.
+- Driver document submission disabled with no reachable success state.
 
+## Repository state
 
-# 📍 Repo Standing Statement
+- Branch: `hackathon/pi-mainnet-readiness`.
+- Baseline: `b0531815a2db35679ab101f1944c4df6f5f685f1`.
+- Frozen migrations `001`–`006` are unchanged.
+- `governance/constitution` is uninitialized and must not be modified by this release.
+- The consolidated migration artifact is `scripts/011_foundation_corrections_rev2e.sql`. It aborts on drift and is clean-install-only. Final SHA-256: `8E39FED0964F78591C903FFB3818C25D53CDD50992DFEADECEF58705698BD868`.
 
-This repository is a **sovereign original** under **Elmahrosa International — TEOS Egypt**.  
-Governance is anchored in [TEOS-FORGE](https://github.com/Elmahrosa/TEOS-FORGE).  
-Commercial use requires written approval from Elmahrosa International.  
+## Setup overview
 
-⚖️ Protected under dual license: PolyForm Noncommercial + TEOS Egypt Sovereign License (TESL).
+Install dependencies with the repository lockfile:
 
-md)
+```bash
+npm ci
+```
 
-> Copyright © 2025 Elmahrosa International. All Rights Reserved.  
-> This material is NOT open source and is protected by the TEOS Egypt Sovereign License (TESL).  
-> For the full license text, see [TEOS Egypt Sovereign License (TESL)](https://github.com/Elmahrosa/Teos-Pharaoh-Portal/blob/main/TESL.md).
-> 
-> **Initial Author:** Elmahrosa International  
-> **Governing law and venue:** Cairo, Arab Republic of Egypt.
-## Features
+Create `.env.local` locally. Never commit it.
 
-- **100% Pi Network Payments** - All transactions use Pi cryptocurrency with escrow protection
-- **Multi-Service Platform** - Taxi rides, bike deliveries, and global agent network
-- **Transparent Governance** - Public audit trails and civic-first approach
-- **Automated Escrow** - Smart payment distribution: 15% TEOS Treasury, 5% Agent Commission, 80% Driver Payout
-- **Dispute Resolution** - Admin-managed dispute system with automated refunds
-- **Arabic RTL Support** - Full localization for MENA region (Alexandria, Egypt launch)
-- **Real-time Tracking** - Live ride status and driver location updates
-- **Mobile-First Design** - Optimized for mobile devices with PWA support
-- **Terms Acceptance** - Users must accept terms before using the platform
-- **Patent Agreement Signing** - Drivers and agents must sign a patent agreement
-- **Vehicle Restrictions** - Only 2020+ models are allowed
-
-## Tech Stack
-
-- **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS v4
-- **Backend**: Next.js API Routes, Supabase (PostgreSQL)
-- **Blockchain**: Pi Network SDK v2.0
-- **UI Components**: shadcn/ui with Radix UI primitives
-- **Authentication**: Pi Network OAuth
-- **Database**: Supabase with Row Level Security (RLS)
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ and npm/yarn/pnpm
-- Supabase account
-- Pi Network Developer account and API key
-
-### Installation
-
-1. **Clone and install dependencies:**
-
-\`\`\`bash
-npm install
-\`\`\`
-
-2. **Set up environment variables:**
-
-Create a `.env.local` file in the root directory:
-
-\`\`\`env
-# Pi Network Configuration
-PI_API_KEY=your_pi_api_key_here
-NEXT_PUBLIC_PI_APP_ID=your_pi_app_id_here
-
-# TEOS Treasury (Use your NEW wallet address from Pi Developer app)
-TEOS_TREASURY_WALLET=your_new_wallet_address_from_dev_app
-NEXT_PUBLIC_TEOS_TREASURY_ADDRESS=your_new_wallet_address_from_dev_app
-FOUNDER_USERNAME=aams1969
-
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
 
-# App Configuration
-NEXT_PUBLIC_APP_URL=https://TeosPiTaxi.teosegypt.com
-NODE_ENV=production
+APP_ORIGIN=
+TRUSTED_CLIENT_IP_HEADER=
+REV2E_TRUSTED_VERIFIER_CONFIGURED=
+REV2E_VERIFIER_SERVICE_URL=
+REV2E_VERIFIER_SERVICE_TOKEN=
 
-# Social Channels
-NEXT_PUBLIC_TELEGRAM_URL=https://t.me/teospitaxi
-NEXT_PUBLIC_WHATSAPP_URL=https://whatsapp.com/channel/0029VbBkdhP4IBhDSAW6Gw2u
-
-# Development redirect for Pi Auth
-NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=http://localhost:3000
-\`\`\`
+NEXT_PUBLIC_PI_APP_ID=
+PI_API_KEY=
+NEXT_PUBLIC_PI_NETWORK=
 
-3. **Initialize the database:**
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=
+GOOGLE_GENERATIVE_AI_API_KEY=
+```
 
-The SQL scripts in `/scripts` folder need to be executed in your Supabase database:
-
-- `001_create_tables.sql` - Creates all database tables with RLS policies
-- `002_seed_data.sql` - Seeds initial data (TEOS Treasury account, etc.)
-- `003_pricing_system.sql` - Dynamic pricing and promotional configs
-- `004_add_founder_config.sql` - Founder configuration (aams1969)
-- `005_vehicle_restrictions_and_terms.sql` - Vehicle requirements and terms acceptance
-
-You can run these scripts directly from the v0 interface or in your Supabase SQL editor.
-
-## Project Structure
-
-\`\`\`
-├── app/
-│   ├── page.tsx                    # Landing page
-│   ├── rider/page.tsx              # Rider app
-│   ├── driver/page.tsx             # Driver app
-│   ├── agent/page.tsx              # Agent app
-│   ├── delivery/page.tsx           # Delivery app
-│   ├── admin/page.tsx              # Admin dashboard
-│   ├── transparency/page.tsx       # Public transparency portal
-│   ├── terms/page.tsx              # Terms of Service
-│   ├── privacy/page.tsx            # Privacy Policy
-│   └── api/
-│       ├── trips/                  # Trip management APIs
-│       ├── payments/               # Payment & escrow APIs
-│       ├── disputes/               # Dispute resolution APIs
-│       ├── transparency/           # Public transparency APIs
-│       └── pricing/                # Dynamic pricing APIs
-├── lib/
-│   ├── supabase.ts                 # Supabase client & types
-│   ├── pi-sdk.ts                   # Pi SDK client-side
-│   ├── pi-sdk-server.ts            # Pi SDK server-side
-│   ├── fare-calculator.ts          # Fare calculation engine
-│   ├── trip-service.ts             # Trip business logic
-│   ├── api-client.ts               # Frontend API client
-│   ├── i18n.ts                     # Internationalization
-│   └── dynamic-pricing.ts        # Dynamic pricing configuration
-├── contexts/
-│   ├── pi-context.tsx              # Pi authentication context
-│   └── locale-context.tsx          # Localization context
-├── scripts/
-│   ├── 001_create_tables.sql      # Database schema
-│   ├── 002_seed_data.sql          # Seed data
-│   ├── 003_pricing_system.sql     # Dynamic pricing and promotional configs
-│   ├── 004_add_founder_config.sql # Founder configuration (aams1969)
-│   └── 005_vehicle_restrictions_and_terms.sql # Vehicle requirements and terms acceptance
-└── components/                     # Reusable UI components
-\`\`\`
+Dedicated database LOGIN identities required by the migration:
 
-## API Endpoints
+- `teospitaxi_payment_verifier`
+- `teospitaxi_route_metrics`
+- `teospitaxi_maintenance`
 
-### Trip Management
+`teospitaxi_payment_writer` is a `NOLOGIN` controlled writer identity with RLS policies and no `BYPASSRLS`. Direct application/service-role DML on controlled payment tables is revoked.
 
-- `POST /api/trips/create` - Create new ride request
-- `POST /api/trips/accept` - Driver accepts ride
-- `POST /api/trips/update-status` - Update ride status
+The Next.js app never connects with a verifier database LOGIN. It calls a separate trusted verifier service over `REV2E_VERIFIER_SERVICE_URL` with `REV2E_VERIFIER_SERVICE_TOKEN`; that service holds the dedicated database credentials and is responsible for `session_user` identity. `REV2E_TRUSTED_VERIFIER_CONFIGURED=true` is required before any dependent route will proceed.
 
-### Payments & Escrow
+Mutation routes call the trusted verifier service at `auth/authorize-mutation` with `{ sessionToken, csrfToken, csrfEpoch, intent }` and require `{ authorized: true, csrfEpoch }` in response. The external verifier service must implement that endpoint and perform the database-backed session/CSRF check.
 
-- `POST /api/payments/escrow` - Fund escrow for trip
-- `POST /api/payments/complete-trip` - Complete trip and distribute payments
-- `GET /api/payments/status` - Get payment status
+Owner-supplied policy values are intentionally not seeded: minor-unit scale, evidence references, thresholds, pricing bindings, webhook secrets, origin, trusted IP header, and Pi metadata. Policy-dependent flows fail closed until supplied and verified.
 
-### Disputes
+## Database artifact
 
-- `POST /api/disputes/create` - File a dispute
-- `POST /api/disputes/resolve` - Admin resolves dispute
+`scripts/011_foundation_corrections_rev2e.sql` is one contiguous transaction containing:
 
-### Transparency (Public)
+- Preflight checks for roles, extensions, frozen columns/functions, managed object drift, and unsafe role membership.
+- Managed tables, constraints, indexes, triggers, RLS, FORCE RLS, and restricted grants.
+- One database-generated CSRF HMAC secret; the secret is never embedded in the artifact or returned to callers.
+- Session, CSRF, rate-limit, metrics, quote, verification, approval, completion, settlement, and webhook functions.
+- Fail-closed guards and postconditions.
 
-- `POST /api/transparency/fare-calculator` - Calculate fare with surge
-- `GET /api/transparency/stats` - Public platform statistics
+### Isolated verification only
 
-### Dynamic Pricing
+The artifact was applied, tested, rolled back, corrected, reapplied, and recovery-tested **only** in `pitaxi_rev2e_local`, a Docker Postgres 16 database created for this revision. No production, staging, or shared database was used.
 
-- `POST /api/pricing/create-config` - Create new pricing configuration
-- `POST /api/pricing/update-config` - Update existing pricing configuration
-- `GET /api/pricing/config` - Retrieve current pricing configuration
+- Pre-`011` dump and schema baseline were captured before application.
+- Initial application succeeded, but behavioral testing exposed an immediate-FK failure in quote replacement and session rotation. `pi_payment_quotes.replaced_by` and `pi_sessions.successor_id` were changed to `DEFERRABLE INITIALLY DEFERRED`; `ON DELETE RESTRICT`/`SET NULL`, cycle checks, partial unique indexes, append-only guards, and terminal-state checks remain unchanged. A read-only review confirmed no other forward-reference defect and no weakened invariant. Root cause, evidence, and rollback commands are in the ignored `verification-evidence/migration-correction-note.md`.
+- Corrected application exited `0`. Independent postconditions exited `0`: 23 managed tables with RLS and FORCE RLS and no app-role grants, 28 allowlisted writer functions with 0 inventory violations, 0 forbidden function grants, 8 lifecycle triggers, 5 frozen policy constraints, exactly 1 active CSRF secret, 16 `ON DELETE RESTRICT` FKs, and 18 unique indexes.
+- Behavioral tests passed for immutable amounts, invalid transitions, early expiry, append-only deletion, valid `active → approved → completed`, quote replacement with a distinct active successor, cycle rejection, duplicate intent IDs and quote hashes, one active quote per trip, attribution delete restriction, and session rotation with a distinct active successor. All test rows were rolled back.
+- Dedicated LOGIN checks passed as `teospitaxi_maintenance`; a `SET ROLE teospitaxi_payment_writer` spoof from `postgres` was rejected because `session_user` remained `postgres`.
+- Reapplying `011` to the already-migrated database failed at drift preflight with exit `3` and left 1 active CSRF secret and 28 active writer functions intact.
+- The final `after_011.dump` was restored into a scratch database, passed the full postcondition/behavioral suite, and the scratch database was dropped.
 
-### Agent Management
+Raw logs, dumps, checksums, and schema snapshots are retained locally under the Git-ignored `verification-evidence/` directory. They are evidence for this working session, not committed release assets.
 
-- `POST /api/agents/check-qualification` - Check if user meets qualification criteria
+### Local static checks
 
-## Payment Flow
+Final local results: `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, and `npm audit --json` all exited `0`; Vitest reported 4 files and 25 tests passed; `npm audit` reported 0 vulnerabilities. The GitHub Actions workflow was updated to Node 22 with audit, typecheck, lint, test, and build steps, but no hosted CI result is claimed here.
 
-1. **Rider requests trip** → System calculates fare with surge multiplier
-2. **Rider funds escrow** → Pi Payment Intent created and approved
-3. **Driver accepts & completes trip** → Trip status updates tracked
-4. **Automatic distribution:**
-   - 15% → TEOS Treasury (Founder)
-   - 5% → Referring Agent (if applicable)
-   - 80% → Driver Payout
+## Main API surfaces
 
-All payments are logged in `payment_transactions` table with full audit trail.
-
-## Agent Referral System
-
-TeosPiTaxi features an innovative agent referral system designed to ensure quality onboarding and fair compensation:
-
-### Founder Agent (aams1969)
-
-- **All new riders and drivers** who join TeosPiTaxi are automatically assigned to the founder (aams1969) as their referring agent
-- This ensures proper onboarding, training, and support for all new users
-- Founder receives 5% commission on all trips from referred users until they qualify as independent agents
-- Transparent tracking of all referrals and commissions in the database
-
-### Qualification to Independent Agent
-
-Users can become independent agents by meeting these criteria:
-1. **Complete 50+ trips** as a driver with good ratings
-2. **Refer 10+ new users** to the platform (riders or drivers)
-3. **Referred users complete 100+ combined trips**
-
-Once qualified, users are **automatically promoted** to independent agents and can:
-- Earn 5% commission on their own referrals
-- Build their own agent network
-- Access advanced analytics and referral tracking tools
-- Maintain their relationship with the founder network
-
-### Commission Distribution
-
-Every completed trip automatically splits payment as follows:
-- **80%** → Driver (transferred directly to their Pi wallet)
-- **15%** → Platform Treasury (TEOS development fund at aams1969 wallet)
-- **5%** → Referring Agent (founder aams1969 or qualified independent agent)
-
-## Deployment
-
-### Deploy to Vercel
-
-1. Push your code to GitHub
-2. Import project to Vercel
-3. Add environment variables in Vercel dashboard
-4. Deploy!
-
-The app will be available at `your-project.vercel.app`
-
-### Custom Domain Setup
-
-**Domain:** TeosPiTaxi.teosegypt.com
-
-1. **DNS Configuration:**
-   - Add CNAME record: `TeosPiTaxi` → `cname.vercel-dns.com`
-   - Wait for DNS propagation (5-60 minutes)
-
-2. **Vercel Setup:**
-   - Add domain in Vercel dashboard
-   - SSL certificate auto-configured
-
-3. **Update Pi Developer Portal:**
-   - App URL: `https://TeosPiTaxi.teosegypt.com`
-   - Redirect URL: `https://TeosPiTaxi.teosegypt.com`
-
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
-
-## Configuration
-
-### Fare Calculator
-
-Edit `lib/fare-calculator.ts` to adjust:
-- Base fare (default: 5 Pi)
-- Per-kilometer rate (default: 2 Pi/km)
-- Per-minute rate (default: 0.5 Pi/min)
-- Treasury fee percentage (default: 15%)
-- Agent commission percentage (default: 5%)
-- Minimum fare (default: 8 Pi)
-
-### Dynamic Pricing
-
-Admins can create promotional pricing configurations through the admin dashboard:
-- First-month discounts
-- Seasonal promotions
-- Region-specific pricing
-- Time-based pricing adjustments
-
-All pricing changes are tracked with full audit history in the database.
-
-## Security
-
-- **Row Level Security (RLS)** enabled on all tables
-- **Pi Network OAuth** for authentication
-- **Server-side payment verification** prevents fraud
-- **Escrow protection** for all transactions
-- **Audit trails** for transparency
-- **Terms acceptance required** before platform use
-- **Patent agreement signing** for drivers and agents
-- **Vehicle restrictions** enforced (2020+ models only)
-- **Zod validation** on all API endpoints
-
-## Legal Pages
-
-The platform includes comprehensive legal documentation:
-- **Terms of Service** (`/terms`) - Platform usage terms, driver requirements, payment terms, Elmahrosa Projects partnership
-- **Privacy Policy** (`/privacy`) - Data collection, blockchain transparency, user rights, international transfers
-
-Both pages are accessible from the footer and include:
-- Arabic and English versions
-- Mobile-responsive design
-- Links to WhatsApp community for support
-
-## Support
-
-For issues or questions:
-- Check the [Pi Developer Docs](https://github.com/pi-apps/pi-platform-docs)
-- **WhatsApp Community:** [Join Channel](https://whatsapp.com/channel/0029VbBkdhP4IBhDSAW6Gw2u)
-- **Telegram:** [@teospitaxi](https://t.me/teospitaxi)
-- **Website:** [TeosPiTaxi.teosegypt.com](https://TeosPiTaxi.teosegypt.com)
-- **Founder:** aams1969 (Pi Network)
-
-**Built with ❤️ for the Pi Network community**
-
-*Launching in Alexandria, Egypt 🇪🇬*
-*Part of Elmahrosa Projects - Civic-first innovation*
-
-## 🔗 Integration Summary
-This repository is part of the **Elmahrosa Sovereign Stack**.  
-Governance is anchored in **TEOS-FORGE**, with integrations across Bankchain, ERT-LAUNCH, FPBE, and other civic modules.  
-See full details in [docs/integrations.md](https://github.com/Elmahrosa/TEOS-FORGE/blob/main/docs/integrations.md).
-
+- `POST /api/session/browse-evidence` — persists server browse evidence before `Pi.authenticate`.
+- `POST /api/session/bootstrap` — verifies Pi identity server-side, issues the HttpOnly session cookie, and returns the CSRF token and epoch.
+- `POST /api/session/rotate` — records fresh browse evidence and rotates session/CSRF state.
+- `POST /api/session/logout` — revokes the server session and clears the cookie.
+- `POST /api/payments/quote` — server-derived quote; requires rider session and CSRF.
+- `POST /api/payments/approve` — fail-closed verifier boundary.
+- `POST /api/payments/escrow` — fail-closed verifier boundary.
+- `POST /api/payments/complete` — fail-closed verifier boundary.
+- `POST /api/payments/complete-trip` — fail-closed verifier boundary.
+- `POST /api/payments/status` — fail-closed verifier boundary.
+- `POST /api/driver/documents` — returns `DRIVER_DOCUMENTS_UNAVAILABLE`.
+- Mutation stubs enforce canonical origin, server session cookie, CSRF headers, and verifier-backed authorization before returning a fail-closed response.
+
+## Release gates
+
+A successful implementation, local check, commit, push, or CI run is not proof of launch readiness. Local isolated-database verification is complete; the following gates remain:
+
+1. Staging runtime verification of the migration artifact and fail-closed routes. Local isolated verification does not satisfy this gate.
+2. Dedicated LOGIN identity configuration and `session_user` verification in staging, not only in the isolated test database.
+3. Owner-supplied policy bootstrap and fail-closed verification in staging.
+4. Hosted CI execution with recorded results; the local equivalents have passed but no hosted run is claimed.
+5. Pi Developer Portal evidence, including listing, PiNet subdomain, verified domain, PiNet URL, Pi App ID, API key configuration, app metadata, demo video, and any KYC requirement.
+6. Actual submission confirmation/reference from the Pi Developer Portal, if submission is permitted.
+7. Separate Mainnet launch approval and official eligibility confirmation before any automated A2U payout is enabled.
+
+The demo URL `https://teos-pitaxi.vercel.app/` was reachable on 2026-11-21 with HTTP `200`, rendered the expected landing page, loaded the Pi SDK, and produced no console errors. That verifies deployment availability only, not Pi verification, KYC, submission, approval, or Mainnet status.
+
+## License
+
+See `NOTICE.md` and `LICENSES/TESL.md`. Governance references are informational; the frozen constitution remains uninitialized.

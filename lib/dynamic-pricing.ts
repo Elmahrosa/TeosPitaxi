@@ -59,11 +59,40 @@ export interface DynamicFareCalculation {
   }[]
 }
 
+// The RPC is untyped because this project does not generate Supabase Database
+// types. Describe the exact row contract here so the result is checked instead
+// of falling back to `{}`.
+interface ActivePricingRow {
+  id: string
+  name: string
+  base_fare: string | number
+  per_km_rate: string | number
+  per_minute_rate: string | number
+  minimum_fare: string | number
+  treasury_fee_percent: string | number
+  agent_commission_percent: string | number
+  is_promotional?: boolean | null
+  promotional_discount_percent?: string | number | null
+  promotional_message?: string | null
+  economy_multiplier?: string | number | null
+  comfort_multiplier?: string | number | null
+  premium_multiplier?: string | number | null
+}
+
+function toNumber(value: string | number | null | undefined, fallback = 0): number {
+  if (value === null || value === undefined || value === "") return fallback
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : fallback
+}
+
 // Get active pricing configuration
 export async function getActivePricing(): Promise<PricingConfig | null> {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
 
-  const { data, error } = await supabase.rpc("get_active_pricing").single()
+  const { data, error } = await supabase
+    .rpc("get_active_pricing")
+    .single()
+    .overrideTypes<ActivePricingRow, { merge: false }>()
 
   if (error || !data) {
     console.error("[v0] Error fetching active pricing:", error)
@@ -76,18 +105,18 @@ export async function getActivePricing(): Promise<PricingConfig | null> {
     isActive: true,
     validFrom: new Date().toISOString(),
     validUntil: null,
-    baseFare: Number.parseFloat(data.base_fare),
-    perKmRate: Number.parseFloat(data.per_km_rate),
-    perMinuteRate: Number.parseFloat(data.per_minute_rate),
-    minimumFare: Number.parseFloat(data.minimum_fare),
-    treasuryFeePercent: Number.parseFloat(data.treasury_fee_percent),
-    agentCommissionPercent: Number.parseFloat(data.agent_commission_percent),
-    isPromotional: data.is_promotional || false,
-    promotionalDiscountPercent: Number.parseFloat(data.promotional_discount_percent || 0),
-    promotionalMessage: data.promotional_message,
-    economyMultiplier: Number.parseFloat(data.economy_multiplier || 1.0),
-    comfortMultiplier: Number.parseFloat(data.comfort_multiplier || 1.5),
-    premiumMultiplier: Number.parseFloat(data.premium_multiplier || 2.0),
+    baseFare: toNumber(data.base_fare),
+    perKmRate: toNumber(data.per_km_rate),
+    perMinuteRate: toNumber(data.per_minute_rate),
+    minimumFare: toNumber(data.minimum_fare),
+    treasuryFeePercent: toNumber(data.treasury_fee_percent),
+    agentCommissionPercent: toNumber(data.agent_commission_percent),
+    isPromotional: data.is_promotional === true,
+    promotionalDiscountPercent: toNumber(data.promotional_discount_percent),
+    promotionalMessage: data.promotional_message ?? null,
+    economyMultiplier: toNumber(data.economy_multiplier, 1),
+    comfortMultiplier: toNumber(data.comfort_multiplier, 1.5),
+    premiumMultiplier: toNumber(data.premium_multiplier, 2),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     createdBy: null,
@@ -192,7 +221,7 @@ export async function calculateDynamicFare(
 
 // Admin functions
 export async function createPricingConfig(config: Partial<PricingConfig>, createdBy: string) {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
 
   const { data, error } = await supabase
     .from("pricing_configs")
@@ -208,7 +237,7 @@ export async function createPricingConfig(config: Partial<PricingConfig>, create
 }
 
 export async function activatePricingConfig(configId: string, activatedBy: string) {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
 
   // Deactivate all current configs
   await supabase.from("pricing_configs").update({ is_active: false }).eq("is_active", true)
@@ -238,7 +267,7 @@ export async function activatePricingConfig(configId: string, activatedBy: strin
 }
 
 export async function getAllPricingConfigs() {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
 
   const { data, error } = await supabase.from("pricing_configs").select("*").order("created_at", { ascending: false })
 

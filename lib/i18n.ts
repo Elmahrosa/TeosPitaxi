@@ -143,10 +143,10 @@ export const translations: Record<Locale, Translations> = {
     paymentDetails: "Payment Details",
     amount: "Amount",
     service: "Service",
-    escrowProtection: "Escrow Protection",
+    escrowProtection: "Server Verification",
     paymentSuccessful: "Payment Successful",
     paymentFailed: "Payment Failed",
-    fundsHeldEscrow: "Funds held in escrow",
+    fundsHeldEscrow: "Settlement recorded after verification",
 
     // Admin
     platformStats: "Platform Statistics",
@@ -221,10 +221,10 @@ export const translations: Record<Locale, Translations> = {
     paymentDetails: "تفاصيل الدفع",
     amount: "المبلغ",
     service: "الخدمة",
-    escrowProtection: "حماية الضمان",
+    escrowProtection: "التحقق من الخادم",
     paymentSuccessful: "نجح الدفع",
     paymentFailed: "فشل الدفع",
-    fundsHeldEscrow: "الأموال محفوظة في الضمان",
+    fundsHeldEscrow: "يُسجل التسوية بعد التحقق",
 
     // Admin
     platformStats: "إحصائيات المنصة",

@@ -11,7 +11,9 @@ export function VerificationBanner() {
       <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 text-sm">
         <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
         <span className="font-semibold text-yellow-700 dark:text-yellow-300 text-center">
-          {isRTL ? "تطبيق تطويري - في انتظار تحقق فريق Pi Core" : "DEVELOPMENT APP - PENDING PI CORE TEAM VERIFICATION"}
+          {isRTL
+            ? "مرشح إصدار - في انتظار التحقق الموثوق وتحقق فريق Pi Core"
+            : "RELEASE CANDIDATE - PENDING TRUSTED VERIFIER AND PI CORE TEAM VERIFICATION"}
         </span>
       </div>
     </div>
