@@ -2,7 +2,7 @@
 
 TEOS PiTaxi is a Next.js release candidate for Pi-native mobility. It is **not launch-approved**, **not Pi Core Team verified**, **not submitted to the Pi Developer Portal**, and **not ready for Mainnet operation**. Payment and mutation routes fail closed until the trusted verifier boundary, dedicated database identities, and owner-supplied policy values are configured and independently verified.
 
-Status summary: **Completed** — implementation, local checks, isolated-database verification, demo URL reachability. **Verified** — local and isolated environments only; staging is not verified. **Submitted** — no. **Approved** — no. **Mainnet enabled** — no.
+Status summary: **Completed** — implementation, local checks, isolated-database verification, live URL reachability. **Verified** — local and isolated environments only; staging is not verified. **Submitted** — no. **Approved** — no. **Mainnet enabled** — no.
 
 ## Current implementation scope
 
@@ -119,11 +119,11 @@ A successful implementation, local check, commit, push, or CI run is not proof o
 2. Dedicated LOGIN identity configuration and `session_user` verification in staging, not only in the isolated test database.
 3. Owner-supplied policy bootstrap and fail-closed verification in staging.
 4. Hosted CI execution with recorded results; the local equivalents have passed but no hosted run is claimed.
-5. Pi Developer Portal evidence, including listing, PiNet subdomain, verified domain, PiNet URL, Pi App ID, API key configuration, app metadata, demo video, and any KYC requirement.
+5. Pi Developer Portal evidence, including listing, PiNet subdomain, verified domain, PiNet URL, Pi App ID, API key configuration, app metadata, product video, and any KYC requirement.
 6. Actual submission confirmation/reference from the Pi Developer Portal, if submission is permitted.
 7. Separate Mainnet launch approval and official eligibility confirmation before any automated A2U payout is enabled.
 
-The demo URL `https://teos-pitaxi.vercel.app/` was reachable on 2026-11-21 with HTTP `200`, rendered the expected landing page, loaded the Pi SDK, and produced no console errors. That verifies deployment availability only, not Pi verification, KYC, submission, approval, or Mainnet status.
+The live URL `https://teos-pitaxi.vercel.app/` was reachable on 2026-11-21 with HTTP `200`, rendered the expected landing page, loaded the Pi SDK, and produced no console errors. That verifies deployment availability only, not Pi verification, KYC, submission, approval, or Mainnet status.
 
 ## License
 

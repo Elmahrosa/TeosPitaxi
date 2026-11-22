@@ -64,8 +64,7 @@ function getPiSdk(): PiSdk | undefined {
 export function initPiSDK() {
   const pi = getPiSdk()
   if (pi) {
-    const sandbox = process.env.NEXT_PUBLIC_PI_NETWORK !== "mainnet"
-    pi.init({ version: "2.0", sandbox })
+    pi.init({ version: "2.0", sandbox: false })
   }
 }
 

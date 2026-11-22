@@ -24,7 +24,7 @@ Never commit secrets or `.env` files.
 - PiNet URL.
 - Pi App ID.
 - API key configuration.
-- App metadata and demo video.
+- App metadata and product video.
 - Redirect URL matching the configured canonical origin.
 - Any KYC requirement for the owner account.
 
@@ -51,4 +51,4 @@ The browser amount only starts the Pi SDK. It does not authorize settlement. Pro
 
 ## Network handling
 
-`NEXT_PUBLIC_PI_NETWORK` selects SDK sandbox behavior. It is not evidence that testnet testing, Mainnet readiness, or launch approval exists. Test and deployment evidence must be recorded separately after explicit approval.
+`NEXT_PUBLIC_PI_NETWORK` selects SDK network mode. It is not evidence that Mainnet readiness or launch approval exists. Test and deployment evidence must be recorded separately after explicit approval.

@@ -47,7 +47,7 @@ Amounts are derived by the server in integer minor units. Client input cannot se
 - [ ] Pi App ID confirmed.
 - [ ] API key configuration confirmed.
 - [ ] `/v2/me` UID field and PaymentDTO variants confirmed against current Pi documentation.
-- [ ] App metadata and demo video supplied.
+- [ ] App metadata and product video supplied.
 - [ ] KYC requirement, if any, confirmed by the owner.
 - [ ] Separate Mainnet launch approval recorded.
 
